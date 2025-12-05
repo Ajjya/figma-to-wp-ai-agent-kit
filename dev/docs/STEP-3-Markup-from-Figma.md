@@ -370,3 +370,53 @@ Before proceeding to Step 6, verify:
 ---
 
 **Remember:** This markup will be the foundation for WordPress templates. Ensure it's clean, semantic, and well-organized before proceeding to Step 6.
+
+
+REFACTOR
+**Images:**
+
+```php
+// Organize images by type:
+dev/html/[themeName]/assets/images/logo.* 
+  → theme/assets/images/logo.*
+
+dev/html/[themeName]/assets/images/icons/ 
+  → theme/assets/images/icons/
+
+dev/html/[themeName]/assets/images/[page]/ 
+  → theme/assets/images/pages/[page]/
+
+// Content images (uploaded via WordPress):
+// Move to /uploads/ directory or note for user to upload
+```
+
+
+### Step 2: Extract Assets from HTML
+
+```bash
+# Find all asset references in HTML
+grep -r "localhost:3845/assets" dev/html/[title]/ | grep -o '[a-f0-9]\{40\}\.[a-z]*' | sort -u > asset-list.txt
+
+# This creates list like:
+# d915c1354e6f7b603747f520a7e54c82310305bc.svg
+# 139d5e67c9bdb89e6a051b5dd6bc9023c2308045.svg
+# etc.
+```
+
+### Step 3: Download Assets from Figma MCP Server
+
+**If MCP Server is Still Running:**
+
+```bash
+# Download each asset
+while read hash; do
+  curl "http://localhost:3845/assets/$hash" -o "temp-assets/$hash"
+done < asset-list.txt
+```
+
+**If MCP Server is Not Running:**
+
+Ask user to:
+1. Restart Figma MCP server
+2. Re-export assets from Figma
+3. Or provide alternative source for assets

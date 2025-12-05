@@ -717,3 +717,20 @@ Ready to proceed to Step 4c (Page Templates)?
 ---
 
 **Next Step:** Once initial templates are validated, proceed to **Step 4c: Page Templates and Archive Files**
+
+
+**JavaScript Files:**
+
+```php
+// Main theme scripts:
+dev/html/[themeName]/assets/js/main.js 
+  → theme/assets/js/main.js
+
+// Component scripts:
+dev/html/[themeName]/assets/js/components/ 
+  → theme/assets/js/components/
+
+// Libraries from reference:
+knowledge-base/theme/assets/libs/[library]
+  → theme/assets/libs/[library]
+```

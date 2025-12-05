@@ -3,32 +3,31 @@
 Use general AI instructions `docs/AI-INSTRUCTIONS.md`
 Use step AI instructions `docs/STEP-6-Html-to-WP.md`
 
-## Extract task
+Do not create any document .md file.
+
+## Extract task data
  - `tasks/current-task.json` → `themeName`
  - `tasks/current-task.json` → `status`
  - `tasks/current-task.json` → `title`
 
 ## Goal
- Move CSS/JS/images/fonts from `dev/html/[themeName]/assets/` into the theme and enqueue them. Include only libraries actually used in the markup.
+Move CSS/JS/images/fonts from `dev/html/[themeName]/assets/` into the theme and enqueue them. Include only libraries actually used in the markup.
 
 ## Prereqs
  - Markup extracted (`status: "wp-initiated"`)
 
-## Read
- - `dev/html/[themeName]/assets/` → CSS/JS/images/fonts present
- - `knowledge-base/theme/assets/libs/` → available libs
- - `knowledge-base/theme/assets/js/` → available javascript
-
-### From Current Task:
-- Read `tasks/current-task.json` → `themeName` (for theme name)
-
-
-### Create theme folder
+## Create theme folder
 Take theme name from task: `[task.themeName slugified]`
-Result theme Location:
+Create theme in next location:
    - websites/[title]/wp-content/themes/[themeName]/
 
-- Theme reference: `knowledge-base/theme`
+## Reference 
+ - Theme reference: `knowledge-base/theme`
+
+## Read
+### From Knowledge-base:
+ - `knowledge-base/theme/assets/libs/` → available libs
+ - `knowledge-base/theme/assets/js/` → available javascript
 
 ### From Markup:
 - Check `dev/html/[themeName]/assets/` structure
@@ -37,10 +36,8 @@ Result theme Location:
 - List all images
 - List all fonts
 
-### From Reference Theme:
- - Check available libraries at: `knowledge-base/theme/assets/libs/`
-
-## Available Libs (reference)
+## Available Javascript Libs (reference):
+Use Available libraries if needed for future: 
  - AOS (Animate On Scroll)
  - Lazyload
  - Lightbox
@@ -70,51 +67,7 @@ JavaScript Libraries:
 ```
 
 ## Steps
- 1) Inventory `dev/html/[themeName]/assets/` (CSS/JS/images/fonts) and detect external libs from `<link>`/`<script>`.
-
-### 1. Analyze Markup Assets
-
-First, scan the markup directory:
-
-```bash
-# List all asset files
-ls -R dev/html/[themeName]/assets/
-```
-
-Create inventory:
-
-```
-📦 Asset Inventory:
-
-**CSS Files:** [count]
-- [List each .css file]
-
-**JavaScript Files:** [count]
-- [List each .js file]
-
-**Images:** [count]
-- [List format counts: X JPG, Y PNG, Z SVG]
-
-**Fonts:** [count]
-- [List font families and formats: WOFF2, WOFF, TTF]
-
-**External Libraries Used in Markup:**
-- [Detect from <script> and <link> tags]
-```
-
- 2) Confirm with user which libs to include. Decide CDN vs local; minify now or later.
-
-```
-🔧 Library Configuration Questions with Answers:
-
-1. Which libraries from the reference do you need? - All you think needed you can use
-2. Are there additional libraries in the markup not in reference? Propose if you need smth special
-3. Should I use CDN or local files for common libraries (jQuery, etc.)? - CDN is perfect choice
-4. Do you need to minimize/concatenate JS files? - No
-5. Should I set up asset versioning/cache busting? - No
-```
-
- 3) Create structure:
+ 1) Create structure:
 
 Generate WordPress theme structure:
 
@@ -157,71 +110,9 @@ Generate WordPress theme structure:
 └── [template files]              # Will create in 4b-4d
 ```
 
- 4) Copy & group assets by purpose (variables/base/layout/components/pages). Move images to `assets/images/` and fonts to `assets/fonts/`. Copy only needed libs to `assets/libs/`.
+ 2) Copy assets from `dev/html/[themeName]/assets/` (CSS/JS/images/fonts)
 
-**CSS Files:**
-
-```php
-// Copy CSS from markup to theme with organization:
-
-dev/html/[themeName]/assets/css/variables.css 
-  → theme/assets/css/variables.css
-
-dev/html/[themeName]/assets/css/[file].css 
-  → theme/assets/css/[organized-name].css
-
-// Organize by purpose:
-// - variables.css (CSS custom properties)
-// - base.css (reset, typography, basic elements)
-// - layout.css (grid, containers, sections)
-// - components.css (buttons, cards, forms)
-// - pages/[page].css (page-specific styles)
-```
-
-**JavaScript Files:**
-
-```php
-// Main theme scripts:
-dev/html/[themeName]/assets/js/main.js 
-  → theme/assets/js/main.js
-
-// Component scripts:
-dev/html/[themeName]/assets/js/components/ 
-  → theme/assets/js/components/
-
-// Libraries from reference:
-knowledge-base/theme/assets/libs/[library]
-  → theme/assets/libs/[library]
-```
-
-**Images:**
-
-```php
-// Organize images by type:
-dev/html/[themeName]/assets/images/logo.* 
-  → theme/assets/images/logo.*
-
-dev/html/[themeName]/assets/images/icons/ 
-  → theme/assets/images/icons/
-
-dev/html/[themeName]/assets/images/[page]/ 
-  → theme/assets/images/pages/[page]/
-
-// Content images (uploaded via WordPress):
-// Move to /uploads/ directory or note for user to upload
-```
-
-**Fonts:**
-
-```php
-// Web fonts:
-dev/html/[themeName]/assets/fonts/[font-family]/ 
-  → theme/assets/fonts/[font-family]/
-
-// Ensure WOFF2 and WOFF formats for browser compatibility
-```
-
- 5) Enqueue assets in `inc/enqueue-scripts.php` (use theme version for cache-busting). Use WordPress-bundled jQuery.
+ 3) Enqueue assets in `inc/enqueue-scripts.php` (use theme version for cache-busting). Use WordPress-bundled jQuery.
 
 Create file: `websites/[title]/wp-content/themes/[themeName]/inc/enqueue-scripts.php`
 
@@ -367,7 +258,7 @@ function theme_enqueue_admin_scripts($hook) {
 add_action('admin_enqueue_scripts', 'theme_enqueue_admin_scripts');
 ```
 
- 6) Create `/assets/js/main.js` with init for AOS/Lazyload, mobile menu toggle, smooth scroll.
+ 3) Create `/assets/js/main.js` with init for AOS/Lazyload, mobile menu toggle, smooth scroll.
 
 Create file: `websites/[title]/wp-content/themes/[themeName]/assets/js/main.js`
 
@@ -431,7 +322,7 @@ Create file: `websites/[title]/wp-content/themes/[themeName]/assets/js/main.js`
 })(jQuery);
 ```
 
- 7) Confirm per-lib configuration (AOS, lightbox, forms, datepicker) only if included.
+ 4) Confirm per-lib configuration (AOS, lightbox, forms, datepicker) only if included.
 
 **For Libraries That Need Configuration:**
 
@@ -461,7 +352,7 @@ Some libraries require additional setup:
 Please specify requirements for each library you're using.
 ```
 
- 8) Optional: minify CSS/JS, convert images to WebP, subset fonts, add asset versioning.
+ 5) Optional: minify CSS/JS, convert images to WebP, subset fonts, add asset versioning.
 
 Offer optimization:
 
@@ -496,7 +387,7 @@ Would you like me to:
 Your choices?
 ```
 
- 9) Ensure `style.css` has a valid WordPress header (Theme Name, Version, Text Domain).
+ 6) Ensure `style.css` has a valid WordPress header (Theme Name, Version, Text Domain).
 
 Create theme's main stylesheet with proper WordPress header:
 
@@ -537,53 +428,19 @@ This theme was generated from Figma design using the Figma-to-WP AI Agent Kit - 
 
 **Solution:** All content images MUST be uploaded to WordPress Media Library and referenced via custom fields.
 
-### Step 1: Identify Asset Types
+### Step 1: Identify Images Types
 
 **Theme Assets** (stay in theme folder):
-- Logo (header.php uses custom logo feature)
-- Icon sprites
 - UI elements (buttons, arrows)
 - Background patterns
 
+**Settings Assets** (stay in theme folder):
+- Logo (header.php, footer.php use custom logo feature)
+
 **Content Assets** (move to Media Library):
-- Feature icons
-- Partner logos
-- Hero images
-- Section images
-- FAQ icons
-- Any image that's page content
+- Any images, icons
 
-### Step 2: Extract Assets from HTML
-
-```bash
-# Find all asset references in HTML
-grep -r "localhost:3845/assets" dev/html/[title]/ | grep -o '[a-f0-9]\{40\}\.[a-z]*' | sort -u > asset-list.txt
-
-# This creates list like:
-# d915c1354e6f7b603747f520a7e54c82310305bc.svg
-# 139d5e67c9bdb89e6a051b5dd6bc9023c2308045.svg
-# etc.
-```
-
-### Step 3: Download Assets from Figma MCP Server
-
-**If MCP Server is Still Running:**
-
-```bash
-# Download each asset
-while read hash; do
-  curl "http://localhost:3845/assets/$hash" -o "temp-assets/$hash"
-done < asset-list.txt
-```
-
-**If MCP Server is Not Running:**
-
-Ask user to:
-1. Restart Figma MCP server
-2. Re-export assets from Figma
-3. Or provide alternative source for assets
-
-### Step 4: Upload to WordPress Media Library
+### Step 2: Upload to WordPress Media Library
 
 Create script: `inc/import-figma-assets.php`
 
@@ -686,7 +543,7 @@ function get_figma_asset_url($hash) {
 }
 ```
 
-### Step 5: Update Templates to Use Custom Fields Instead of Hardcoded URLs
+### Step 3: Update Templates to Use Custom Fields Instead of Hardcoded URLs
 
 **CRITICAL:** Do NOT use hardcoded localhost URLs in templates!
 
@@ -695,7 +552,7 @@ function get_figma_asset_url($hash) {
 <img src="http://localhost:3845/assets/d915c1354e6f7b603747f520a7e54c82310305bc.svg" alt="Logo">
 ```
 
-**Correct Option 1 - Custom Fields:**
+**Correct Option1 - Custom Fields:**
 ```php
 <?php
 $hero_image_id = get_post_meta(get_the_ID(), 'hero_image', true);
@@ -705,27 +562,12 @@ if ($hero_image_id) {
 ?>
 ```
 
-**Correct Option 2 - Fallback with Helper:**
+**Correct Option 2 - Theme Asset (for UI elements):**
 ```php
-<?php
-$hero_image = get_post_meta(get_the_ID(), 'hero_image', true);
-if ($hero_image) {
-    // Custom field has attachment ID
-    echo wp_get_attachment_image($hero_image, 'large');
-} else {
-    // Fallback to Figma asset
-    $url = get_figma_asset_url('d915c1354e6f7b603747f520a7e54c82310305bc.svg');
-    echo '<img src="' . esc_url($url) . '" alt="Hero Image">';
-}
-?>
+<img src="<?php echo get_template_directory_uri(); ?>/assets/images/button.svg" alt="Logo">
 ```
 
-**Correct Option 3 - Theme Asset (for UI elements):**
-```php
-<img src="<?php echo get_template_directory_uri(); ?>/assets/images/logo.svg" alt="Logo">
-```
-
-### Step 6: Update Custom Fields to Use Image Upload
+### Step 4: Update Custom Fields to Use Image Upload
 
 In `inc/custom-fields.php`, ensure all image fields use media library:
 
@@ -739,45 +581,6 @@ wp_add_image(
 );
 ```
 
-### Step 7: Manual Upload Instructions for User
-
-Create file: `ASSET-MIGRATION.md` in theme root:
-
-```markdown
-# Asset Migration Instructions
-
-## Assets Need to be Uploaded
-
-The theme currently references Figma assets via localhost URLs. These need to be uploaded to WordPress Media Library.
-
-### Steps:
-
-1. **Download Assets from Figma:**
-   - Reopen Figma file
-   - Use Figma MCP server to download assets
-   - Or export assets manually from Figma
-
-2. **Upload to WordPress:**
-   - Go to WordPress Admin → Media → Add New
-   - Upload all content images (feature icons, partner logos, hero images)
-   - Note the attachment IDs
-
-3. **Update Custom Fields:**
-   - Go to Pages → Home → Edit
-   - Scroll to custom fields meta boxes
-   - Use "Upload Image" buttons to select uploaded images
-   - Save page
-
-4. **Theme Assets (Optional):**
-   - Logo: Upload via Appearance → Customize → Site Identity → Logo
-   - Background images: Keep in theme/assets/images/ folder
-   - UI icons: Keep in theme/assets/images/icons/ folder
-
-### Asset List:
-
-See `temp-assets/` directory for downloaded Figma assets or check HTML for required images.
-```
-
 ## Answers on questions
 1. The HTML uses external assets. 
  - Download these assets automatically? - Yes
@@ -785,46 +588,29 @@ See `temp-assets/` directory for downloaded Figma assets or check HTML for requi
  - Theme will include helper script to import from Figma
  - User can also manually upload via WordPress admin
 
-
- ## Ask
- - Separate page CSS or combined? Minify now?
- - Theme images vs media library?
- - Which JavaScript libraries do you need from the reference theme?
-
-1. **Asset Organization:**
-   - "Should I keep the markup's original file structure or reorganize?"
-   - "Do you want page-specific CSS in separate files or combined?"
-
-2. **Library Selection:**
-   - "Which libraries from the reference theme do you actually need?"
-   - "The markup uses [X] library but it's not in reference. Should I add it?"
-
-3. **Performance:**
+## Ask user
+1. **Performance:**
    - "Should I concatenate CSS files into one or keep separate for modularity?"
    - "Use CDN for common libraries (jQuery, AOS) or local files?"
 
-4. **Image Handling:**
+2. **Image Handling:**
    - "Should theme images be in theme folder or WordPress media library?"
    - "Do you want SVG icons inline or as files?"
 
-5. **Font Loading:**
+3. **Font Loading:**
    - "Use Google Fonts CDN or self-host fonts?"
    - "Should I add font-display: swap for performance?"
 
-6. **Development vs Production:**
+4. **Development vs Production:**
    - "Keep readable code for development or minify for production?"
    - "Should I set up a build process (Webpack/Gulp) for assets?"
 
- ## Success
+## Success
 
 Before proceeding to Step 4b:
 
 - Assets copied and enqueued; no 404s
 - `style.css` WP header present
-- Only required libs included
-
- ## Validate
- - Activate theme → visit homepage → check console for 404s/errors → confirm styles/scripts loaded.
 
 Show user:
 
@@ -845,19 +631,12 @@ Show user:
 ✓ assets/js/main.js
 ✓ style.css (theme header)
 
-**Next: Test Asset Loading**
-1. Activate the theme in WordPress admin
-2. Visit front page
-3. Open browser console - check for 404 errors
-4. Verify CSS is loading (inspect element)
-5. Verify JS is loading (check console for errors)
-
 Are all assets loading correctly?
 □ Yes, proceed to Step 4b
 □ No, I see these issues: [describe]
 ```
 
- ## Common Issues
+## Common Issues
  - Paths wrong → fix in `inc/enqueue-scripts.php`
  - jQuery conflicts → use WP jQuery; wrap with `(function($){ ... })(jQuery)`
  - Fonts not showing → verify `@font-face` and formats

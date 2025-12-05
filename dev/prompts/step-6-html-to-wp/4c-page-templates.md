@@ -504,3 +504,12 @@ Ready to proceed to Step 4d (Forms Configuration)?
 ```
 
 **Next Step:** Proceed to **Step 4: Forms Configuration**
+
+
+
+**Next: Test Asset Loading**
+1. Activate the theme in WordPress admin
+2. Visit front page
+3. Open browser console - check for 404 errors
+4. Verify CSS is loading (inspect element)
+5. Verify JS is loading (check console for errors)
