@@ -1,6 +1,7 @@
 {
   "id": "example",
   "title": "Example with Custom Post Types and Taxonomies",
+  "themeName": "awesome-theme",
   "siteStructure": {
     "pages": [
       {

@@ -1,10 +1,9 @@
 {
   "id": "1",
   "title": "Awesome website",
-  "description": "Task created from branch main",
+  "themeName": "awesome-theme",
   "status": "html-to-wp-complete",
   "serverType": "valet",
-  "branch": "main",
   "figmaUrl": "https://www.figma.com/design/lxBauAT7T509cWqjpa6s8s/Awesome",
   "metadata": {
     "createdAt": "2025-11-12T18:07:57.870Z",

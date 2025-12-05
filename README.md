@@ -257,10 +257,8 @@ The AI assistant guides you through a structured 6-step workflow:
 │   ├── current-task.json       # Active task
 │   └── docs/                   # Task examples
 ├── dev/prompts/                 # AI prompts and instructions
-│   ├── step-3-figma-extraction.md
 │   └── step-4-html-to-wp/      # Detailed conversion prompts
 ├── src/                         # TypeScript source code
-│   ├── create-wp-site.ts       # WordPress site creator
 │   └── setup-workspace.mjs     # Workspace initializer
 ├── setup.config.json            # Repository configuration
 └── AI-INSTRUCTIONS.md           # Main AI workflow guide

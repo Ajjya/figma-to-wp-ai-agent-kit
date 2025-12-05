@@ -1,41 +1,46 @@
- # Step 4a: Assets & Libraries 
+# Step 4a: Assets & Libraries 
 
 Use general AI instructions `docs/AI-INSTRUCTIONS.md`
 Use step AI instructions `docs/STEP-6-Html-to-WP.md`
 
- ## Goal
- Move CSS/JS/images/fonts from `website/markup/` into the theme and enqueue them. Include only libraries actually used in the markup.
-
- ## Prereqs
- - Markup extracted (`status: "Markup done"`)
-
- ## Read
+## Extract task
+ - `tasks/current-task.json` → `themeName`
+ - `tasks/current-task.json` → `status`
  - `tasks/current-task.json` → `title`
- - `website/markup/assets/` → CSS/JS/images/fonts present
+
+## Goal
+ Move CSS/JS/images/fonts from `dev/html/[themeName]/assets/` into the theme and enqueue them. Include only libraries actually used in the markup.
+
+## Prereqs
+ - Markup extracted (`status: "wp-initiated"`)
+
+## Read
+ - `dev/html/[themeName]/assets/` → CSS/JS/images/fonts present
  - `knowledge-base/theme/assets/libs/` → available libs
+ - `knowledge-base/theme/assets/js/` → available javascript
 
 ### From Current Task:
-- Read `/tasks/current-task.json` → `title` (for theme name)
+- Read `tasks/current-task.json` → `themeName` (for theme name)
 
 
 ### Create theme folder
-Take theme name from task: `[task.title slugified]`
-Theme Location:
-   - websites/[site-name]/wp-content/themes/[theme-name]/
+Take theme name from task: `[task.themeName slugified]`
+Result theme Location:
+   - websites/[title]/wp-content/themes/[themeName]/
 
 - Theme reference: `knowledge-base/theme`
 
 ### From Markup:
-- Check `/website/markup/assets/` structure
+- Check `dev/html/[themeName]/assets/` structure
 - List all CSS files
 - List all JS files
 - List all images
 - List all fonts
 
 ### From Reference Theme:
-- Check available libraries at: `/knowledge-base/themes/awesome_group/wp-content/themes/awesome/assets/libs/`
+ - Check available libraries at: `knowledge-base/theme/assets/libs/`
 
- ## Available Libs (reference)
+## Available Libs (reference)
  - AOS (Animate On Scroll)
  - Lazyload
  - Lightbox
@@ -64,8 +69,8 @@ JavaScript Libraries:
 └── sweetalert/                # Alert dialogs
 ```
 
- ## Steps
- 1) Inventory `website/markup/assets/` (CSS/JS/images/fonts) and detect external libs from `<link>`/`<script>`.
+## Steps
+ 1) Inventory `dev/html/[themeName]/assets/` (CSS/JS/images/fonts) and detect external libs from `<link>`/`<script>`.
 
 ### 1. Analyze Markup Assets
 
@@ -73,7 +78,7 @@ First, scan the markup directory:
 
 ```bash
 # List all asset files
-ls -R /website/markup/assets/
+ls -R dev/html/[themeName]/assets/
 ```
 
 Create inventory:
@@ -100,27 +105,13 @@ Create inventory:
  2) Confirm with user which libs to include. Decide CDN vs local; minify now or later.
 
 ```
-🔧 Library Configuration Questions:
+🔧 Library Configuration Questions with Answers:
 
-I've analyzed the markup and found these dependencies:
-[List detected libraries]
-
-From the reference theme, these libraries are available:
-✅ jQuery + plugins (cookie, masked input, scrollTo)
-✅ AOS (Animate On Scroll)
-✅ Datepicker
-✅ Lazyload
-✅ Lightbox
-✅ HC Offcanvas Navigation (mobile menu)
-✅ SweetAlert
-✅ Form handling utilities
-
-Questions:
-1. Which libraries from the reference do you need?
-2. Are there additional libraries in the markup not in reference?
-3. Should I use CDN or local files for common libraries (jQuery, etc.)?
-4. Do you need to minimize/concatenate JS files?
-5. Should I set up asset versioning/cache busting?
+1. Which libraries from the reference do you need? - All you think needed you can use
+2. Are there additional libraries in the markup not in reference? Propose if you need smth special
+3. Should I use CDN or local files for common libraries (jQuery, etc.)? - CDN is perfect choice
+4. Do you need to minimize/concatenate JS files? - No
+5. Should I set up asset versioning/cache busting? - No
 ```
 
  3) Create structure:
@@ -128,7 +119,7 @@ Questions:
 Generate WordPress theme structure:
 
 ```
-/website/wp-content/themes/[theme-slug]/
+/websites/[title]/wp-content/themes/[themeName]/
 ├── style.css                      # Theme stylesheet (required)
 ├── functions.php                  # Theme functions (will create in 4b)
 ├── screenshot.png                 # Theme screenshot (optional)
@@ -173,10 +164,10 @@ Generate WordPress theme structure:
 ```php
 // Copy CSS from markup to theme with organization:
 
-markup/assets/css/variables.css 
+dev/html/[themeName]/assets/css/variables.css 
   → theme/assets/css/variables.css
 
-markup/assets/css/[file].css 
+dev/html/[themeName]/assets/css/[file].css 
   → theme/assets/css/[organized-name].css
 
 // Organize by purpose:
@@ -191,15 +182,15 @@ markup/assets/css/[file].css
 
 ```php
 // Main theme scripts:
-markup/assets/js/main.js 
+dev/html/[themeName]/assets/js/main.js 
   → theme/assets/js/main.js
 
 // Component scripts:
-markup/assets/js/components/ 
+dev/html/[themeName]/assets/js/components/ 
   → theme/assets/js/components/
 
 // Libraries from reference:
-knowledge-base/themes/awesome_group/.../libs/[library]
+knowledge-base/theme/assets/libs/[library]
   → theme/assets/libs/[library]
 ```
 
@@ -207,13 +198,13 @@ knowledge-base/themes/awesome_group/.../libs/[library]
 
 ```php
 // Organize images by type:
-markup/assets/images/logo.* 
+dev/html/[themeName]/assets/images/logo.* 
   → theme/assets/images/logo.*
 
-markup/assets/images/icons/ 
+dev/html/[themeName]/assets/images/icons/ 
   → theme/assets/images/icons/
 
-markup/assets/images/[page]/ 
+dev/html/[themeName]/assets/images/[page]/ 
   → theme/assets/images/pages/[page]/
 
 // Content images (uploaded via WordPress):
@@ -224,7 +215,7 @@ markup/assets/images/[page]/
 
 ```php
 // Web fonts:
-markup/assets/fonts/[font-family]/ 
+dev/html/[themeName]/assets/fonts/[font-family]/ 
   → theme/assets/fonts/[font-family]/
 
 // Ensure WOFF2 and WOFF formats for browser compatibility
@@ -232,7 +223,7 @@ markup/assets/fonts/[font-family]/
 
  5) Enqueue assets in `inc/enqueue-scripts.php` (use theme version for cache-busting). Use WordPress-bundled jQuery.
 
-Create file: `/website/wp-content/themes/[theme-slug]/inc/enqueue-scripts.php`
+Create file: `websites/[title]/wp-content/themes/[themeName]/inc/enqueue-scripts.php`
 
 ```php
 <?php
@@ -378,7 +369,7 @@ add_action('admin_enqueue_scripts', 'theme_enqueue_admin_scripts');
 
  6) Create `/assets/js/main.js` with init for AOS/Lazyload, mobile menu toggle, smooth scroll.
 
-Create file: `/website/wp-content/themes/[theme-slug]/assets/js/main.js`
+Create file: `websites/[title]/wp-content/themes/[themeName]/assets/js/main.js`
 
 ```javascript
 /**
@@ -566,7 +557,7 @@ This theme was generated from Figma design using the Figma-to-WP AI Agent Kit - 
 
 ```bash
 # Find all asset references in HTML
-grep -r "localhost:3845/assets" dev/html/[site-name]/ | grep -o '[a-f0-9]\{40\}\.[a-z]*' | sort -u > asset-list.txt
+grep -r "localhost:3845/assets" dev/html/[title]/ | grep -o '[a-f0-9]\{40\}\.[a-z]*' | sort -u > asset-list.txt
 
 # This creates list like:
 # d915c1354e6f7b603747f520a7e54c82310305bc.svg
@@ -840,7 +831,7 @@ Show user:
 ```
 ✅ Step 4a Complete: Assets Migrated
 
-**Theme Location:** /website/wp-content/themes/[theme-slug]/
+**Theme Location:** websites/[title]/wp-content/themes/[themeName]/
 
 **Assets Summary:**
 ✓ CSS Files: [count] files organized
