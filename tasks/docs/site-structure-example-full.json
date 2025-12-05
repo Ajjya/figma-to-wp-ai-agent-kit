@@ -1,0 +1,259 @@
+{
+  "id": "example",
+  "title": "Example with Custom Post Types and Taxonomies",
+  "siteStructure": {
+    "pages": [
+      {
+        "slug": "home",
+        "title": "Home",
+        "figmaPageName": "Homepage",
+        "template": "front-page.php",
+        "isHomepage": true,
+        "parent": null,
+        "menuOrder": 0,
+        "inMenu": false,
+        "status": "publish"
+      },
+      {
+        "slug": "services",
+        "title": "Our Services",
+        "figmaPageName": "Services Page",
+        "template": "page.php",
+        "parent": null,
+        "menuOrder": 1,
+        "inMenu": true,
+        "status": "publish"
+      },
+      {
+        "slug": "about",
+        "title": "About Us",
+        "figmaPageName": "About Page",
+        "template": "page-about.php",
+        "parent": null,
+        "menuOrder": 2,
+        "inMenu": true,
+        "status": "publish",
+        "children": [
+          {
+            "slug": "team",
+            "title": "Our Team",
+            "figmaPageName": "Team Page",
+            "template": "page.php",
+            "menuOrder": 0,
+            "inMenu": true,
+            "status": "publish"
+          },
+          {
+            "slug": "careers",
+            "title": "Careers",
+            "figmaPageName": "Careers Page",
+            "template": "page.php",
+            "menuOrder": 1,
+            "inMenu": true,
+            "status": "draft"
+          }
+        ]
+      },
+      {
+        "slug": "contact",
+        "title": "Contact",
+        "figmaPageName": "Contact Page",
+        "template": "page-contact.php",
+        "parent": null,
+        "menuOrder": 3,
+        "inMenu": true,
+        "status": "publish"
+      }
+    ],
+    "postTypes": [
+      {
+        "name": "service",
+        "labels": {
+          "singular": "Service",
+          "plural": "Services"
+        },
+        "public": true,
+        "hasArchive": true,
+        "menuIcon": "dashicons-networking",
+        "supports": ["title", "editor", "thumbnail", "excerpt"],
+        "taxonomies": ["service-category"]
+      },
+      {
+        "name": "team-member",
+        "labels": {
+          "singular": "Team Member",
+          "plural": "Team Members"
+        },
+        "public": true,
+        "hasArchive": true,
+        "menuIcon": "dashicons-groups",
+        "supports": ["title", "editor", "thumbnail"],
+        "taxonomies": ["department"]
+      },
+      {
+        "name": "case-study",
+        "labels": {
+          "singular": "Case Study",
+          "plural": "Case Studies"
+        },
+        "public": true,
+        "hasArchive": true,
+        "menuIcon": "dashicons-portfolio",
+        "supports": ["title", "editor", "thumbnail", "excerpt"],
+        "taxonomies": ["industry", "service-category"]
+      }
+    ],
+    "taxonomies": [
+      {
+        "name": "service-category",
+        "labels": {
+          "singular": "Service Category",
+          "plural": "Service Categories"
+        },
+        "hierarchical": true,
+        "postTypes": ["service", "case-study"],
+        "showInMenu": true,
+        "terms": [
+          {
+            "name": "Financial Services",
+            "slug": "financial-services",
+            "description": "Financial and banking services"
+          },
+          {
+            "name": "Legal Services",
+            "slug": "legal-services",
+            "description": "Legal consultation and representation"
+          },
+          {
+            "name": "Consulting",
+            "slug": "consulting",
+            "description": "Business consulting services",
+            "parent": "financial-services"
+          }
+        ]
+      },
+      {
+        "name": "industry",
+        "labels": {
+          "singular": "Industry",
+          "plural": "Industries"
+        },
+        "hierarchical": true,
+        "postTypes": ["case-study"],
+        "showInMenu": true,
+        "terms": [
+          {
+            "name": "Healthcare",
+            "slug": "healthcare"
+          },
+          {
+            "name": "Technology",
+            "slug": "technology"
+          },
+          {
+            "name": "Finance",
+            "slug": "finance"
+          }
+        ]
+      },
+      {
+        "name": "department",
+        "labels": {
+          "singular": "Department",
+          "plural": "Departments"
+        },
+        "hierarchical": false,
+        "postTypes": ["team-member"],
+        "showInMenu": false,
+        "terms": [
+          {
+            "name": "Legal",
+            "slug": "legal"
+          },
+          {
+            "name": "Finance",
+            "slug": "finance"
+          },
+          {
+            "name": "Management",
+            "slug": "management"
+          }
+        ]
+      }
+    ],
+    "menus": [
+      {
+        "name": "Primary Menu",
+        "location": "primary",
+        "items": [
+          {
+            "type": "page",
+            "slug": "services",
+            "order": 1
+          },
+          {
+            "type": "post_type_archive",
+            "postType": "case-study",
+            "label": "Case Studies",
+            "order": 2
+          },
+          {
+            "type": "page",
+            "slug": "about",
+            "order": 3,
+            "children": [
+              {
+                "type": "page",
+                "slug": "team",
+                "order": 1
+              },
+              {
+                "type": "post_type_archive",
+                "postType": "team-member",
+                "label": "Our Team",
+                "order": 2
+              }
+            ]
+          },
+          {
+            "type": "page",
+            "slug": "contact",
+            "order": 4
+          }
+        ]
+      },
+      {
+        "name": "Footer Menu",
+        "location": "footer",
+        "items": [
+          {
+            "type": "taxonomy",
+            "taxonomy": "service-category",
+            "slug": "financial-services",
+            "order": 1
+          },
+          {
+            "type": "taxonomy",
+            "taxonomy": "service-category",
+            "slug": "legal-services",
+            "order": 2
+          },
+          {
+            "type": "custom",
+            "label": "Privacy Policy",
+            "url": "/privacy-policy",
+            "order": 3
+          }
+        ]
+      }
+    ],
+    "settings": {
+      "blogName": "Example Company",
+      "blogDescription": "Professional services and consulting",
+      "postsPerPage": 12,
+      "timezone": "Europe/London",
+      "dateFormat": "d/m/Y",
+      "timeFormat": "H:i"
+    }
+  }
+}

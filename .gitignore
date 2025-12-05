@@ -1,0 +1,25 @@
+node_modules/
+dist/
+*.log
+.DS_Store
+
+# Environment files - NEVER commit secrets
+.env
+.env.local
+.env.*.local
+!.env.example
+
+# Knowledge base (cloned reference theme)
+knowledge-base/theme/
+knowledge-base/plugins/
+
+websites/
+!websites/example-website/
+!websites/example-website/**
+
+html/
+!html/example-website/
+!html/example-website/**
+
+# HTML extracted from Figma (not committed)
+dev/html/

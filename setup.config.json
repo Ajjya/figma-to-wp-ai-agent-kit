@@ -1,0 +1,18 @@
+{
+"repositories": {
+	"theme": {
+		"name": "Canonical WordPress Theme",
+		"url": "git@github.com:Ajjya/canonical-wp-theme.git",
+		"destination": "knowledge-base/theme/canonical-wp-theme",
+		"description": "Reference theme for WordPress site generation"
+	},
+	"plugins": [
+		{
+			"name": "WP Custom Fields",
+			"url": "git@github.com:Ajjya/wp-custom-fileds.git",
+			"destination": "knowledge-base/plugins/wp-custom-field",
+			"description": "Custom field plugin for WordPress"
+		}
+	]
+}
+}
