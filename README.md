@@ -158,39 +158,39 @@ In Figma Preferences, you can configure:
 Open **GitHub Copilot Chat** and run these prompts one at a time. For each step, attach the corresponding prompt file and follow the AI's guidance. **Use separate chat sessions for each prompt:**
 
 #### Step 1: Task Analysis & Planning
-Attach: `@docs/STEP-1-Work-with-task.md`
+Attach: `@dev/docs/STEP-1-Work-with-task.md`
 ```
 Analyze the current task and show me the project plan
 ```
 
-#### Step 2: Set Up WordPress Server
-Attach: `@docs/STEP-2-Web-server-config.md`
-```
-Set up WordPress server
-```
-
-#### Step 3: Create WordPress Installation
-Attach: `@docs/STEP-3-Create-WP.md`
-```
-Create the WP site
-```
-
-#### Step 4: Extract Markup from Figma
-Attach: `@docs/STEP-4-Figma-MCP.md`
+#### Step 2: Configure Figma MCP
+Attach: `@dev/docs/STEP-2-Figma-MCP.md`
 ```
 Set up Figma MCP and verify connection
 ```
 
-#### Step 5: Copy Markup from Figma
-Attach: `@docs/STEP-5-Markup-from-Figma.md`
+#### Step 3: Extract Markup from Figma
+Attach: `@dev/docs/STEP-3-Markup-from-Figma.md`
 ```
-Copy Markup from Figma (via MCP)
+Extract markup from Figma design
+```
+
+#### Step 4: Set Up WordPress Server
+Attach: `@dev/docs/STEP-4-Web-server-config.md`
+```
+Set up WordPress server
+```
+
+#### Step 5: Create WordPress Installation
+Attach: `@dev/docs/STEP-5-Create-WP.md`
+```
+Create the WordPress site
 ```
 
 #### Step 6: Convert HTML to WordPress
-Attach: `@docs/STEP-6-Html-to-WP.md`
+Attach: `@dev/docs/STEP-6-Html-to-WP.md`
 ```
-Convert HTML to WordPress
+Convert HTML to WordPress theme
 ```
 
 **Important:** Wait for each step to complete before moving to the next. The AI will update your task status automatically.
@@ -202,45 +202,42 @@ The AI assistant guides you through a structured 6-step workflow:
 ### Step 1: Task Analysis & Planning
 - Validates task definition in `tasks/current-task.json`
 - Shows summary of pages and site structure
-- Updates status to `"Task analyzed"`
+- Updates status to `"task-analyzed"`
 
-### Step 2: Set Up WordPress Server
-- Guides you to configure a local WordPress environment
-- **Helps you choose server setup:**
-  - **Laravel Valet (macOS)** - Automatic installation
-  - **MAMP (macOS/Windows)** - Manual setup with download link
-  - **Local by Flywheel** - Easy management interface
-  - **Docker** - Generates docker-compose.yml
-- Updates status to `"Server configured"`
-
-### Step 3: Create WordPress Installation
-- Creates WordPress installation in `websites/[site-name]/`
-- Sets up custom theme structure
-- Initializes theme folders and template hierarchy
-- Updates status to `"WP initiated"`
-
-### Step 4: Extract Markup from Figma
+### Step 2: Configure Figma MCP
 - Configures Figma MCP connection
 - Verifies Figma Design file access
 - Prepares for markup extraction
-- Updates status to `"Figma MCP ready"`
+- Updates status to `"mcp-configured"`
 
-### Step 5: Copy Markup from Figma
+### Step 3: Extract Markup from Figma
 - Uses Figma MCP to extract HTML/CSS from design
 - Analyzes page structure and components
-- Saves organized markup to theme folders
-- Updates status to `"Markup done"`
+- Saves organized markup to `dev/html/` folder
+- Updates status to `"markup-done"`
+
+### Step 4: Set Up WordPress Server
+- Guides you to configure a local WordPress environment
+- **Helps you choose server setup:**
+  - **Laravel Valet (macOS)** - Automatic installation
+  - **Manual theme (macOS/Windows)** - Manual setup with download link
+- Updates status to `"server-configured"`
+
+### Step 5: Create WordPress Installation
+- Creates WordPress installation in `websites/[site-name]/`
+- Sets up custom theme structure
+- Initializes theme folders and template hierarchy
+- Updates status to `"wp-initiated"`
 
 ### Step 6: Convert HTML to WordPress
 - Converts markup to WordPress theme files
-- Implements 6 sub-steps (4a-4f):
+- Implements 5 sub-steps:
   - 4a: Move assets and configure libraries
   - 4b: Create initial template files
   - 4c: Create page templates
-  - 4d: Create custom post types & fields
-  - 4e: Configure forms and integrations
-  - 4f: Final integration and testing
-- Updates status to `"HTML to WP conversion complete"`
+  - 4d: Configure forms (plugins installed by AI, settings by user)
+  - 4e: Final integration and testing
+- Updates status to `"html-to-wp-complete"`
 
 ## 📁 Project Structure
 
@@ -293,17 +290,19 @@ yarn dev
 The AI assistant automatically detects where you left off:
 
 - **Status: "pending"** → Starts from Step 1 (Task Analysis)
-- **Status: "Task analyzed"** → Starts from Step 2 (Create WordPress Site)
-- **Status: "WP initiated"** → Starts from Step 3 (Extract Figma Markup)
-- **Status: "Markup done"** → Starts from Step 4 (HTML to WP Conversion)
-- **Status: "completed"** → Task is done, ready for new task
+- **Status: "task-analyzed"** → Starts from Step 2 (Configure Figma MCP)
+- **Status: "mcp-configured"** → Starts from Step 3 (Extract Figma Markup)
+- **Status: "markup-done"** → Starts from Step 4 (Set Up WordPress Server)
+- **Status: "server-configured"** → Starts from Step 5 (Create WordPress Installation)
+- **Status: "wp-initiated"** → Starts from Step 6 (HTML to WP Conversion)
+- **Status: "html-to-wp-complete"** → Task is done, ready for new task
 
-Simply attach `AI-INSTRUCTIONS.md` and ask the AI to continue!
+Simply attach `@dev/docs/AI-INSTRUCTIONS.md` and ask the AI to continue!
 
 ## 💡 Tips
 
-1. **Always attach AI-INSTRUCTIONS.md** when starting a new chat session
-2. **Keep Figma MCP running** during Step 3
+1. **Always attach @dev/docs/AI-INSTRUCTIONS.md** when starting a new chat session
+2. **Keep Figma MCP running** during Steps 2-3 (MCP configuration and markup extraction)
 3. **Validate each step** before moving to the next
 4. **Update task status** is handled automatically by the AI
 5. **Reference files** are in `knowledge-base/` for AI to use
@@ -329,8 +328,9 @@ Simply attach `AI-INSTRUCTIONS.md` and ask the AI to continue!
 
 ## 📚 Documentation
 
-- **AI-INSTRUCTIONS.md** - Complete workflow guide for AI assistants
-- **dev/prompts/** - Detailed prompts for each step
+- **dev/docs/AI-INSTRUCTIONS.md** - Complete workflow guide for AI assistants
+- **dev/docs/STEP-*.md** - Detailed instructions for each step
+- **dev/prompts/step-6-html-to-wp/** - Sub-step prompts for HTML to WP conversion
 - **tasks/docs/** - Task structure examples
 
 ## 🤝 Support
