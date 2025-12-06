@@ -513,3 +513,53 @@ Ready to proceed to Step 4d (Forms Configuration)?
 3. Open browser console - check for 404 errors
 4. Verify CSS is loading (inspect element)
 5. Verify JS is loading (check console for errors)
+
+
+
+Important!: 
+1. Copy images from mark up and save in Media. Use it in proproate posts/pages etc.
+2. Copy content to admin part. Every icon, link, text, title must be editable from admin part. Use wp-custom-fields for additional fields
+3. Create custom options with all needed settings similar to `knowledge-base/themes/awesome_group/wp-content/themes/awesome/inc/options.php`. Add possibility to change logo, social links, download app links from here.
+
+
+
+
+## IMPORTANT: Migrate Assets to WordPress Media Library
+
+**Problem:** Images in html file.
+
+**Solution:** All content images MUST be uploaded to WordPress Media Library and referenced via custom fields.
+
+### Step 1: Identify Images Types
+
+**Theme Assets** (stay in theme folder):
+- UI elements (buttons, arrows)
+- Background patterns
+
+**Settings Assets** (stay in theme folder):
+- Logo (header.php, footer.php use custom logo feature)
+
+**Content Assets** (move to Media Library):
+- Any images, icons
+
+### Step 2: Upload to WordPress Media Library
+Upload all images and icons from assets to Media Library Using WP-CLI
+
+### Step 3: Update Templates to Use Custom Fields Instead of Hardcoded URLs
+
+**CRITICAL:** Do NOT use hardcoded localhost URLs in templates!
+
+**Wrong:**
+```php
+<img src="http://localhost:3845/assets/d915c1354e6f7b603747f520a7e54c82310305bc.svg" alt="Logo">
+```
+
+**Correct Option1 - Custom Fields:**
+```php
+<?php
+$hero_image_id = get_post_meta(get_the_ID(), 'hero_image', true);
+if ($hero_image_id) {
+    echo wp_get_attachment_image($hero_image_id, 'large', false, array('alt' => 'Hero Image'));
+}
+?>
+```

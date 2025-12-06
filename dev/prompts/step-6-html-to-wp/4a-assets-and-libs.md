@@ -3,7 +3,7 @@
 Use general AI instructions `docs/AI-INSTRUCTIONS.md`
 Use step AI instructions `docs/STEP-6-Html-to-WP.md`
 
-Do not create any document .md file.
+Do not create any documentation .md file.
 
 ## Extract task data
  - `tasks/current-task.json` → `themeName`
@@ -11,7 +11,12 @@ Do not create any document .md file.
  - `tasks/current-task.json` → `title`
 
 ## Goal
-Move CSS/JS/images/fonts from `dev/html/[themeName]/assets/` into the theme and enqueue them. Include only libraries actually used in the markup.
+1. Move CSS/JS/images/fonts from `dev/html/[themeName]/assets/` into the theme and enqueue them. Include only libraries actually used in the markup.
+2. Create and fill next files:
+    - `inc/enqueue-scripts.php`
+    - `/assets/js/main.js`
+    - `style.css`
+
 
 ## Prereqs
  - Markup extracted (`status: "wp-initiated"`)
@@ -419,167 +424,14 @@ This theme was generated from Figma design using the Figma-to-WP AI Agent Kit - 
 /* You can add theme-specific CSS here or leave this file minimal */
 ```
 
-## IMPORTANT: Figma Asset Migration to WordPress Media Library
 
-**Problem:** Assets extracted from Figma reference localhost URLs like:
-```html
-<img src="http://localhost:3845/assets/d915c1354e6f7b603747f520a7e54c82310305bc.svg" alt="Logo">
-```
-
-**Solution:** All content images MUST be uploaded to WordPress Media Library and referenced via custom fields.
-
-### Step 1: Identify Images Types
-
-**Theme Assets** (stay in theme folder):
-- UI elements (buttons, arrows)
-- Background patterns
-
-**Settings Assets** (stay in theme folder):
-- Logo (header.php, footer.php use custom logo feature)
-
-**Content Assets** (move to Media Library):
-- Any images, icons
-
-### Step 2: Upload to WordPress Media Library
-
-Create script: `inc/import-figma-assets.php`
-
-```php
-<?php
-/**
- * Import Figma Assets to WordPress Media Library
- * Run once after theme activation
- */
-
-function import_figma_assets() {
-    // Prevent multiple runs
-    if (get_option('figma_assets_imported')) {
-        return;
-    }
-    
-    require_once(ABSPATH . 'wp-admin/includes/image.php');
-    require_once(ABSPATH . 'wp-admin/includes/file.php');
-    require_once(ABSPATH . 'wp-admin/includes/media.php');
-    
-    // Asset mapping: hash => descriptive name
-    $assets = array(
-        'd915c1354e6f7b603747f520a7e54c82310305bc.svg' => 'logo',
-        '139d5e67c9bdb89e6a051b5dd6bc9023c2308045.svg' => 'icon-security',
-        '2ddced4cf1c8cdaa7835acbe4ea67c02f6040c8e.svg' => 'icon-aml',
-        '6619ee07c88b3ca76d9f8d00a413d1c65e42a603.svg' => 'icon-labels',
-        // ... add all content assets
-    );
-    
-    $imported_assets = array();
-    
-    foreach ($assets as $hash => $name) {
-        // Try to download from Figma MCP server
-        $url = "http://localhost:3845/assets/$hash";
-        $temp_file = download_url($url);
-        
-        if (is_wp_error($temp_file)) {
-            // Try local file if download fails
-            $local_path = get_template_directory() . '/temp-assets/' . $hash;
-            if (file_exists($local_path)) {
-                $temp_file = $local_path;
-            } else {
-                continue; // Skip if not available
-            }
-        }
-        
-        // Prepare file array
-        $file_array = array(
-            'name' => $name . '.' . pathinfo($hash, PATHINFO_EXTENSION),
-            'tmp_name' => $temp_file
-        );
-        
-        // Upload to media library
-        $attachment_id = media_handle_sideload($file_array, 0, $name);
-        
-        if (!is_wp_error($attachment_id)) {
-            $imported_assets[$hash] = $attachment_id;
-            
-            // Update attachment metadata
-            update_post_meta($attachment_id, '_figma_hash', $hash);
-            update_post_meta($attachment_id, '_figma_name', $name);
-        }
-    }
-    
-    // Save mapping for later reference
-    update_option('figma_asset_mapping', $imported_assets);
-    update_option('figma_assets_imported', true);
-    
-    return $imported_assets;
-}
-
-// Run on theme activation
-add_action('after_switch_theme', 'import_figma_assets');
-
-/**
- * Helper function to get WordPress media URL from Figma hash
- */
-function get_figma_asset_url($hash) {
-    $mapping = get_option('figma_asset_mapping', array());
-    
-    if (isset($mapping[$hash])) {
-        return wp_get_attachment_url($mapping[$hash]);
-    }
-    
-    // Fallback: search by meta
-    $attachments = get_posts(array(
-        'post_type' => 'attachment',
-        'posts_per_page' => 1,
-        'meta_key' => '_figma_hash',
-        'meta_value' => $hash
-    ));
-    
-    if ($attachments) {
-        return wp_get_attachment_url($attachments[0]->ID);
-    }
-    
-    // Last fallback: use theme asset if available
-    $theme_path = get_template_directory_uri() . '/assets/images/' . $hash;
-    return $theme_path;
-}
-```
-
-### Step 3: Update Templates to Use Custom Fields Instead of Hardcoded URLs
-
-**CRITICAL:** Do NOT use hardcoded localhost URLs in templates!
-
-**Wrong:**
-```php
-<img src="http://localhost:3845/assets/d915c1354e6f7b603747f520a7e54c82310305bc.svg" alt="Logo">
-```
-
-**Correct Option1 - Custom Fields:**
-```php
-<?php
-$hero_image_id = get_post_meta(get_the_ID(), 'hero_image', true);
-if ($hero_image_id) {
-    echo wp_get_attachment_image($hero_image_id, 'large', false, array('alt' => 'Hero Image'));
-}
-?>
-```
 
 **Correct Option 2 - Theme Asset (for UI elements):**
 ```php
 <img src="<?php echo get_template_directory_uri(); ?>/assets/images/button.svg" alt="Logo">
 ```
 
-### Step 4: Update Custom Fields to Use Image Upload
 
-In `inc/custom-fields.php`, ensure all image fields use media library:
-
-```php
-// Add image field with media library picker
-wp_add_image(
-    'hero_image',
-    'Hero Image',
-    get_the_ID(),
-    'Upload or select hero image from media library'
-);
-```
 
 ## Answers on questions
 1. The HTML uses external assets. 
