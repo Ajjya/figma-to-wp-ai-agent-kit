@@ -11,7 +11,7 @@ This step creates the core WordPress theme template files that form the foundati
 
 ## Critical Requirements
 1. **Media Management**: Copy all images from markup to WordPress Media Library. Reference them in appropriate posts/pages
-2. **Admin Editability**: Every icon, link, text, and title must be editable from WordPress admin. Use wp-custom-fields plugin for additional custom fields
+2. **Admin Editability**: Every icon, link, text, and title must be editable from WordPress admin. Use wp-custom-fields plugin for additional custom fields. Use metaboxes for additional fields if necessary.
 3. **Theme Options**: Create custom options (similar to `knowledge-base/theme/inc/options.php`) for logo, social links, app download links, and other global settings
 4. **Reference Theme**: Always use `knowledge-base/theme/` as your reference for structure and functionality
 
@@ -33,7 +33,6 @@ Create the following core WordPress template files in `websites/[themeName]/wp-c
 - `footer.php` - Site footer template  
 - `index.php` - Main loop template (fallback)
 - `404.php` - Not found page template
-- `inc/custom-posts.php` - Custom post type registrations
 - `inc/metaboxes.php` - Custom meta box definitions
 - `inc/options.php` - Theme options page setup
 - `inc/posts-deleting.php` - Post deletion handlers
@@ -48,7 +47,6 @@ Read these files from `knowledge-base/theme/` to understand structure and patter
 - `footer.php` - Footer structure and widgets
 - `index.php` - Main loop implementation
 - `404.php` - Error page template
-- `inc/custom-posts.php` - Custom post type registration patterns
 - `inc/metaboxes.php` - Meta box registration patterns
 - `inc/options.php` - Theme options page setup
 - `inc/posts-deleting.php` - Post deletion handlers
@@ -199,10 +197,6 @@ Copy needed functionality from reference theme to maintain consistency:
 
 These provide utility functions that other templates will use.
 
-### Step 7: Register Custom Post Types
-
-**Reference:** `knowledge-base/theme/inc/custom-posts.php`
-
 
 ## Success Criteria
 
@@ -216,7 +210,6 @@ All the following files must be created in `websites/[themeName]/wp-content/them
 - ✅ `404.php` - Error page template
 
 **Include Files:**
-- ✅ `inc/custom-posts.php` - Custom post types registered
 - ✅ `inc/metaboxes.php` - Meta boxes defined
 - ✅ `inc/options.php` - Theme options page created
 - ✅ `inc/posts-deleting.php` - Post handlers in place
@@ -278,9 +271,6 @@ Please test the following in your browser and WordPress admin:
 
 **Report any issues or confirm all tests pass.**
 ```
-
-## Next Step
-Once all tests pass, proceed to **Step 4c: Page Templates** to create specific page templates for different page types.
 
 **Ask User (Header/Footer Configuration):**
 ```

@@ -1,21 +1,36 @@
 # Step 4a: Assets & Libraries 
 
-Use general AI instructions `docs/AI-INSTRUCTIONS.md`
-Use step AI instructions `docs/STEP-6-Html-to-WP.md`
-
-Do not create any documentation .md file.
-
-## Extract task data
- - `tasks/current-task.json` → `themeName`
- - `tasks/current-task.json` → `status`
- - `tasks/current-task.json` → `title`
-
 ## Goal
 1. Move CSS/JS/images/fonts from `dev/html/[themeName]/assets/` into the theme and enqueue them. Include only libraries actually used in the markup.
 2. Create and fill next files:
     - `inc/enqueue-scripts.php`
     - `/assets/js/main.js`
     - `style.css`
+3. Copy and acivate reference plugin `knowledge-base/plugins/wp-custom-field`
+
+## AI Instructions
+- Follow general AI instructions from `docs/AI-INSTRUCTIONS.md`
+- Follow step-specific instructions from `docs/STEP-6-Html-to-WP.md`
+- Do not invent anything - ask the user if you have any doubts before proceeding
+- Do not create additional documentation (.md) files
+
+## Critical Requirements
+1. **Media Management**: Copy all images from markup to WordPress Media Library. Reference them in appropriate posts/pages
+2. **Admin Editability**: Every icon, link, text, and title must be editable from WordPress admin. Use wp-custom-fields plugin for additional custom fields. Use metaboxes for additional fields if necessary.
+3. **Theme Options**: Create custom options (similar to `knowledge-base/theme/inc/options.php`) for logo, social links, app download links, and other global settings
+4. **Reference Theme**: Always use `knowledge-base/theme/` as your reference for structure and functionality
+
+## Extract Task Data
+From `tasks/current-task.json`, extract:
+- `themeName` - The name of the theme you're building
+- `status` - Current workflow status (must be "wp-initiated")
+- `title` - Project title
+- `menus` - Menu locations needed
+- `widgets` - Widget areas needed
+- `customPosts` - Custom post types to register
+- `categories` - Taxonomy structure
+- `imageSizes` - Required image dimensions (if specified)
+
 
 
 ## Prereqs
@@ -423,15 +438,6 @@ This theme was generated from Figma design using the Figma-to-WP AI Agent Kit - 
 
 /* You can add theme-specific CSS here or leave this file minimal */
 ```
-
-
-
-**Correct Option 2 - Theme Asset (for UI elements):**
-```php
-<img src="<?php echo get_template_directory_uri(); ?>/assets/images/button.svg" alt="Logo">
-```
-
-
 
 ## Answers on questions
 1. The HTML uses external assets. 

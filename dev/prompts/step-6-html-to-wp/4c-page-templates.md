@@ -1,28 +1,37 @@
 # Step 4c: Page & Archive Templates
 
-Use general AI instructions `docs/AI-INSTRUCTIONS.md`
-Use step AI instructions `docs/STEP-6-Html-to-WP.md`
-
-Take theme name from task: `[task.title slugified]`
-Theme Location:
-   - websites/[site-name]/wp-content/themes/[theme-name]/
-
-## Goal
+## Overview
 Implement core page templates (`front-page.php`, `page.php`, `single.php`, `archive.php`), example CPT + taxonomy, supporting template parts, and helper functions. Remove duplication and keep all content editable via WordPress (use existing `wp-custom-fields` plugin – NOT ACF).
 
-### Important Notes
-1. Copy images from the markup and save them in Media.
-2. Ensure all content (icons, links, text, titles) is editable from the admin panel.
-3. Create metaboxes for additional fields if necessary.
+## AI Instructions
+- Follow general AI instructions from `docs/AI-INSTRUCTIONS.md`
+- Follow step-specific instructions from `docs/STEP-6-Html-to-WP.md`
+- Do not invent anything - ask the user if you have any doubts before proceeding
+- Do not create additional documentation (.md) files
+
+## Critical Requirements
+1. **Media Management**: Copy all images from markup to WordPress Media Library. Reference them in appropriate posts/pages
+2. **Admin Editability**: Every icon, link, text, and title must be editable from WordPress admin. Use wp-custom-fields plugin for additional custom fields. Use metaboxes for additional fields if necessary.
+3. **Reference Theme**: Always use `knowledge-base/theme/` as your reference for structure and functionality
+
+## Extract Task Data
+From `tasks/current-task.json`, extract:
+- `themeName` - The name of the theme you're building
+- `status` - Current workflow status (must be "wp-initiated")
+- `title` - Project title
+- `menus` - Menu locations needed
+- `widgets` - Widget areas needed
+- `customPosts` - Custom post types to register
+- `categories` - Taxonomy structure
 
 ## Prerequisites
 - Navigation (Step 4b) completed and menus assigned.
 - Task file `/tasks/current-task.json` defines pages, post types, taxonomies.
-- Figma markup/HTML exported (see `website/markup/pages/`).
+- Figma markup/HTML exported (see `dev/html/[themeName]/`).
 
 ## References
 - Custom Fields Plugin: `/knowledge-base/plugins/wp-custom-fields/`
-- Theme Reference (patterns & structure): `/knowledge-base/themes/awesome_group/wp-content/themes/awesome/`
+- Theme Reference (patterns & structure): `/knowledge-base/theme/`
 - Task Definition: `/tasks/current-task.json`
 
 ## Template Hierarchy (Quick Reference)
@@ -142,7 +151,7 @@ get_header();
 <?php get_footer(); ?>
 ```
 
-## 3. Custom Post Type & Taxonomy Example
+## 3. Custom Post Type and Taxonomy Example
 
 `inc/custom-post-types.php`
 ```php
@@ -201,7 +210,7 @@ function theme_register_taxonomies() {
 add_action('init','theme_register_taxonomies');
 ```
 
-## 4. CPT Templates (Example)
+## 4. Custom Post Type Templates (Example)
 
 `archive-team_member.php`
 ```php
@@ -254,7 +263,7 @@ add_action('init','theme_register_taxonomies');
 <?php get_footer(); ?>
 ```
 
-## 5. Sidebar & Template Parts
+## 5. Sidebar and Template Parts
 
 `sidebar.php`
 ```php
@@ -294,37 +303,20 @@ add_action('init','theme_register_taxonomies');
 </article>
 ```
 
-## 6. Helper Functions
-
-`inc/template-functions.php`
-```php
-<?php
-function theme_breadcrumbs(){ if(is_front_page()) return; echo '<nav class="breadcrumbs" aria-label="Breadcrumb">'; echo '<a href="'.home_url('/').'">'.__('Home','theme-slug').'</a>'; if(is_category()||is_single()){ echo ' / '; the_category(' / '); if(is_single()) echo ' / '.get_the_title(); } elseif(is_page()){ if($pid=wp_get_post_parent_id(get_the_ID())){ $crumbs=[]; while($pid){ $p=get_page($pid); $crumbs[]='<a href="'.get_permalink($p->ID).'">'.get_the_title($p->ID).'</a>'; $pid=$p->post_parent; } foreach(array_reverse($crumbs) as $c){ echo ' / '.$c; } } echo ' / '.get_the_title(); } echo '</nav>'; }
-function theme_reading_time(){ $c=get_post_field('post_content',get_the_ID()); $words=str_word_count(strip_tags($c)); $mins=ceil($words/200); return sprintf(_n('%s min read','%s min read',$mins,'theme-slug'),$mins); }
-function theme_pagination(){ global $wp_query; $big=999999999; echo paginate_links(['base'=>str_replace($big,'%#%',esc_url(get_pagenum_link($big))),'format'=>'?paged=%#%','current'=>max(1,get_query_var('paged')),'total'=>$wp_query->max_num_pages,'prev_text'=>__('«','theme-slug'),'next_text'=>__('»','theme-slug')]); }
-```
-
-Add to `functions.php`:
-```php
-require get_template_directory().'/inc/template-functions.php';
-require get_template_directory().'/inc/custom-post-types.php';
-require get_template_directory().'/inc/taxonomies.php';
-```
-
-## 7. Optional Additional Templates
+## 6. Optional Additional Templates
 - `search.php` (if custom layout required)
 - `tag.php` (only if different from generic archive)
 - `taxonomy-department.php` (if department archive needs unique design)
 
-## 8. Custom Fields Strategy
+## 7. Custom Fields Strategy
 Use `wp-custom-fields` plugin groups defined to match page/CPT needs. Ensure:
 - Field group keys stable.
 - All front-end rendered strings come from post content, excerpt, meta, or taxonomy term names (no hard-coded marketing text).
 
-## 9. Save data in WP-admin
-1. Create the actual content in the WordPress admin. Use WP CLI for saving content. Use task for details how to store data.
+## 8. Save Data in WordPress Admin
+1. Create actual content in WordPress admin. Use WP-CLI for saving content. Reference the task configuration for details on how to store data.
 
-### CRITICAL: Icon/Image Custom Fields in Admin
+### CRITICAL: Icon and Image Custom Fields in Admin
 
 **IMPORTANT:** For custom fields that allow image/icon uploads via WordPress Media Library:
 
@@ -370,33 +362,25 @@ add_action('save_post', 'theme_save_meta_boxes');
    - Check `$post_type` to ensure correct nonce is verified
    - Handle empty values with `delete_post_meta()` to allow icon removal
    - Use `absint()` for attachment IDs
-   - Each CPT should have its own nonce verification block
+   - Each custom post type should have its own nonce verification block
 
-## 10. Validation Checklist
+## 9. Validation Checklist
 - CPT & taxonomy appear in admin and are editable.
 - Homepage renders all dynamic sections.
 - Archives paginate without errors.
 - Single templates show meta, featured image, and custom fields.
 - No PHP notices/warnings.
 
-## 11. Success Criteria
+## 10. Success Criteria
 - All required templates exist & load.
 - Editing content in WordPress reflects on frontend without code changes.
 - Reusable template parts reduce duplication.
 - Helper functions (breadcrumbs, pagination, reading time) work when used.
 
 ## Notes
-Removed duplicated, fragmented, and interleaved instructions. Consolidated numbering and removed stray inline numbered steps inside code blocks. Use this cleaned guide for implementation.
+Removed duplicated, fragmented, and interleaved instructions. Consolidated numbering and removed stray inline numbered steps inside code blocks. Use this guide for implementation.
 
-
-    if (isset($_POST['team_phone'])) {
-        update_post_meta($post_id, '_team_phone', sanitize_text_field($_POST['team_phone']));
-    }
-}
-add_action('save_post_team_member', 'theme_save_team_member_meta');
-```
-
-### 9. Update functions.php
+## 11. Update functions.php
 
 Add new includes to functions.php:
 
@@ -417,35 +401,32 @@ if (file_exists(get_template_directory() . '/inc/custom-fields.php')) {
 }
 ```
 
-## Questions to Ask User
-
-
-## Questions with answers:
+## Questions with Answers
 
 1. **Custom Post Types:**
    - "Should I create the custom post types from the task?" - Use task for getting all needed custom posts
    - "Do you prefer plugin-based (CPT UI) or code-based registration?" - I would prefer code-based registation
 
 2. **Custom Fields:**
-   - "Will you use Advanced Custom Fields (ACF) plugin?" - Always use wp-custom-fields instead
+   - \"Do you prefer plugin-based (CPT UI) or code-based registration?\" - Code-based registration is preferred
    - "Should I create custom meta boxes in code?" - yes, if needed
    - "What fields does each post type need?" - analize content and add needed fields
 
-3. **Taxonomies:**
-   - "Should taxonomies be hierarchical (categories) or flat (tags)?" - get this info from task
+   - \"Should I create custom meta boxes in code?\" - Yes, if needed
+   - \"What fields does each post type need?\" - Analyze content and add needed fieldso from task
    - "Do you need taxonomy archive pages with custom designs?" - get this info from task
 
-4. **Archive Layouts:**
-   - "How should custom post type archives be displayed (grid, list)?" - get this info from mark up
+   - \"Should taxonomies be hierarchical (categories) or flat (tags)?\" - Get this information from task
+   - \"Do you need taxonomy archive pages with custom designs?\" - Get this information from taskrom mark up
    - "How many items per page on archives?" - get this info from mark up
 
-5. **Single Layouts:**
-   - "What layout for single custom post type pages (sidebar, full-width)?" - get this information from task
+   - \"How should custom post type archives be displayed (grid, list)?\" - Get this information from markup
+   - \"How many items per page on archives?\" - Get this information from markup)?" - get this information from task
    - "Should related items be shown on single pages?" - yes
 
-6. **Navigation:**
-   - "Should I add breadcrumbs?" - Use if in design
-   - "Do you want prev/next post navigation?" - Use if in the design
+   - \"What layout for single custom post type pages (sidebar, full-width)?\" - Get this information from task
+   - \"Should related items be shown on single pages?\" - Yes
+   - \"Do you want previous/next post navigation?\" - Use if in design
 
 ## Success Criteria
 
@@ -494,72 +475,15 @@ Before proceeding to Step 4d:
 
 **Testing Checklist:**
 □ Homepage displays correctly
-□ Created several pages in WP admin - they display correctly
+□ Created several pages in WordPress admin - they display correctly
 □ Blog post displays with correct layout
-□ Category/tag archives work
+□ Category and tag archives work
 □ Breadcrumbs showing (if implemented)
 □ No PHP errors in debug log
 
 Ready to proceed to Step 4d (Forms Configuration)?
 ```
 
-**Next Step:** Proceed to **Step 4: Forms Configuration**
+**Next Step:** Proceed to **Step 4d: Forms Configuration**
 
 
-
-**Next: Test Asset Loading**
-1. Activate the theme in WordPress admin
-2. Visit front page
-3. Open browser console - check for 404 errors
-4. Verify CSS is loading (inspect element)
-5. Verify JS is loading (check console for errors)
-
-
-
-Important!: 
-1. Copy images from mark up and save in Media. Use it in proproate posts/pages etc.
-2. Copy content to admin part. Every icon, link, text, title must be editable from admin part. Use wp-custom-fields for additional fields
-3. Create custom options with all needed settings similar to `knowledge-base/themes/awesome_group/wp-content/themes/awesome/inc/options.php`. Add possibility to change logo, social links, download app links from here.
-
-
-
-
-## IMPORTANT: Migrate Assets to WordPress Media Library
-
-**Problem:** Images in html file.
-
-**Solution:** All content images MUST be uploaded to WordPress Media Library and referenced via custom fields.
-
-### Step 1: Identify Images Types
-
-**Theme Assets** (stay in theme folder):
-- UI elements (buttons, arrows)
-- Background patterns
-
-**Settings Assets** (stay in theme folder):
-- Logo (header.php, footer.php use custom logo feature)
-
-**Content Assets** (move to Media Library):
-- Any images, icons
-
-### Step 2: Upload to WordPress Media Library
-Upload all images and icons from assets to Media Library Using WP-CLI
-
-### Step 3: Update Templates to Use Custom Fields Instead of Hardcoded URLs
-
-**CRITICAL:** Do NOT use hardcoded localhost URLs in templates!
-
-**Wrong:**
-```php
-<img src="http://localhost:3845/assets/d915c1354e6f7b603747f520a7e54c82310305bc.svg" alt="Logo">
-```
-
-**Correct Option1 - Custom Fields:**
-```php
-<?php
-$hero_image_id = get_post_meta(get_the_ID(), 'hero_image', true);
-if ($hero_image_id) {
-    echo wp_get_attachment_image($hero_image_id, 'large', false, array('alt' => 'Hero Image'));
-}
-?>
-```
