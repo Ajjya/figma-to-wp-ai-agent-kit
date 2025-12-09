@@ -1,0 +1,97 @@
+/**
+ * Admin Styles
+ *
+ * @package Awesome_Theme
+ */
+
+/* Theme Options Page */
+.awesome-settings-section {
+    background: #fff;
+    padding: 20px;
+    margin: 20px 0;
+    border: 1px solid #ccd0d4;
+    border-radius: 4px;
+}
+
+.awesome-settings-section h2 {
+    margin-top: 0;
+    padding-bottom: 10px;
+    border-bottom: 1px solid #eee;
+}
+
+.awesome-settings-field {
+    margin-bottom: 15px;
+}
+
+.awesome-settings-field label {
+    display: block;
+    font-weight: 600;
+    margin-bottom: 5px;
+}
+
+.awesome-settings-field input[type="text"],
+.awesome-settings-field input[type="email"],
+.awesome-settings-field input[type="url"],
+.awesome-settings-field textarea {
+    width: 100%;
+    max-width: 500px;
+}
+
+.awesome-settings-field textarea {
+    min-height: 100px;
+}
+
+.awesome-image-preview {
+    max-width: 200px;
+    margin-top: 10px;
+}
+
+.awesome-image-preview img {
+    max-width: 100%;
+    height: auto;
+}
+
+.awesome-columns {
+    display: flex;
+    gap: 20px;
+    flex-wrap: wrap;
+}
+
+.awesome-column {
+    flex: 1;
+    min-width: 300px;
+}
+
+/* Metabox Styles */
+.awesome-metabox-field {
+    margin-bottom: 15px;
+}
+
+.awesome-metabox-field label {
+    display: block;
+    margin-bottom: 5px;
+}
+
+.awesome-metabox-field input[type="text"],
+.awesome-metabox-field input[type="url"],
+.awesome-metabox-field textarea {
+    width: 100%;
+    max-width: 500px;
+}
+
+/* Responsive */
+@media (max-width: 1439.98px) {
+    .awesome-settings-section {
+        padding: 15px;
+    }
+}
+
+@media (max-width: 782px) {
+    .awesome-columns {
+        flex-direction: column;
+    }
+    
+    .awesome-column {
+        min-width: 100%;
+    }
+}

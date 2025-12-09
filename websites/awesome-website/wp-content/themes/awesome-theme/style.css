@@ -1,0 +1,23 @@
+/*!
+Theme Name: Awesome Theme
+Theme URI: https://awesome.io
+Author: Awesome Team
+Author URI: https://awesome.io
+Description: WordPress theme for Awesome Crypto Wallet - converted from Figma design
+Version: 1.0.0
+Requires at least: 6.0
+Tested up to: 6.4
+Requires PHP: 7.4
+License: GNU General Public License v2 or later
+License URI: http://www.gnu.org/licenses/gpl-2.0.html
+Text Domain: awesome-theme
+Tags: custom-background, custom-logo, custom-menu, featured-images, one-page
+
+This theme was generated from Figma design using the Figma-to-WP AI Agent Kit.
+*/
+
+/* 
+ * Main stylesheet 
+ * Styles are loaded from /assets/css/main.css via functions.php
+ * This file contains WordPress theme header only
+ */
