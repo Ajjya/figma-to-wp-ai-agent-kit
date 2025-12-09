@@ -312,6 +312,8 @@ add_action('init','theme_register_taxonomies');
 Use `wp-custom-fields` plugin groups defined to match page/CPT needs. Ensure:
 - Field group keys stable.
 - All front-end rendered strings come from post content, excerpt, meta, or taxonomy term names (no hard-coded marketing text).
+- **NO fallback content** - if a custom field is empty, hide that section or element completely.
+- Use conditional checks: `<?php if (get_post_meta($post_id, 'field_name', true)) : ?>` before displaying content.
 
 ## 8. Save Content Using WP-CLI
 
@@ -326,13 +328,21 @@ Before creating posts/pages, import all images from `dev/html/[themeName]/assets
 cd websites/[themeName]
 
 # Import single image and capture attachment ID
-wp media import ../dev/html/[themeName]/assets/images/hero-image.jpg --porcelain
+wp media import ../../dev/html/[themeName]/assets/images/hero-image.jpg --porcelain
 
 # Import all images from assets folder
-wp media import ../dev/html/[themeName]/assets/images/* --porcelain
+wp media import ../../dev/html/[themeName]/assets/images/* --porcelain
 ```
 
-**Store returned attachment IDs** - you'll need them for featured images and custom fields.
+**IMPORTANT:** Store returned attachment IDs for each image - you'll need them for:
+- Featured images (`_thumbnail_id` meta)
+- Custom field image/icon references
+- Inline content images (use `wp_get_attachment_url()` to get correct URLs)
+
+**Ensure Correct Image Paths:** After upload, images must be properly linked:
+- **Featured Images:** Use `wp post meta update [POST_ID] _thumbnail_id [ATTACHMENT_ID]`
+- **Custom Field Images:** Use attachment IDs, not file paths
+- **Content Images:** Replace HTML markup paths with WordPress media URLs using `wp_get_attachment_url([ATTACHMENT_ID])`
 
 ### 8.2 Create Pages with WP-CLI
 
@@ -340,8 +350,12 @@ wp media import ../dev/html/[themeName]/assets/images/* --porcelain
 # Create page and get ID
 wp post create --post_type=page --post_title="About Us" --post_status=publish --post_name="about-us" --porcelain
 
-# Create page with content from file
+# Create page with content - REPLACE image paths with WordPress URLs first
+# Example: Replace src="assets/images/hero.jpg" with src="[WP_MEDIA_URL]"
 wp post create --post_type=page --post_title="Homepage" --post_status=publish --post_name="home" --post_content="$(cat content.html)" --porcelain
+
+# Set featured image with correct attachment ID
+wp post meta update [PAGE_ID] _thumbnail_id [ATTACHMENT_ID]
 
 # Set page as front page
 wp option update show_on_front page
@@ -350,6 +364,12 @@ wp option update page_on_front [PAGE_ID]
 # Create child page (set parent)
 wp post create --post_type=page --post_title="Team" --post_status=publish --post_parent=[PARENT_ID] --porcelain
 ```
+
+**Image Linking Strategy:**
+1. Import all images and store attachment IDs
+2. Get WordPress URL for each image: `wp post list --post_type=attachment --field=guid --post__in=[ATTACHMENT_ID]`
+3. Replace HTML markup image paths with WordPress URLs before creating posts/pages
+4. Verify images display correctly on frontend
 
 ### 8.3 Create Custom Post Type Entries
 
@@ -382,30 +402,52 @@ wp post meta update [POST_ID] linkedin_url "https://linkedin.com/in/johnsmith"
 # Create taxonomy term
 wp term create department "Engineering" --porcelain
 
-# Create hierarchical term with parent
-wp term create department "Frontend" --parent=[PARENT_TERM_ID] --porcelain
-
-# Assign term to post
-wp post term add [POST_ID] department [TERM_ID]
-
-# Or assign by term name
-wp post term add [POST_ID] department "Engineering"
-```
-
 ### 8.6 Complete Workflow Example
 
 For each content type in `current-task.json`:
 
 ```bash
-# 1. Import images first
-HERO_IMG=$(wp media import dev/html/[theme]/assets/images/hero.jpg --porcelain)
-TEAM_IMG=$(wp media import dev/html/[theme]/assets/images/team-john.jpg --porcelain)
+# 1. Import images first and store IDs
+HERO_IMG=$(wp media import ../../dev/html/[theme]/assets/images/hero.jpg --porcelain)
+TEAM_IMG=$(wp media import ../../dev/html/[theme]/assets/images/team-john.jpg --porcelain)
+ICON_IMG=$(wp media import ../../dev/html/[theme]/assets/icons/feature-icon.svg --porcelain)
+
+# Get WordPress URLs for inline content images
+HERO_URL=$(wp post list --post_type=attachment --field=guid --post__in=$HERO_IMG --format=csv)
 
 # 2. Create taxonomy terms
 wp term create department "Leadership" --porcelain
 wp term create department "Engineering" --porcelain
 
-# 3. Create pages
+# 3. Create pages with correct image URLs
+# Replace markup image paths with WordPress URLs before inserting content
+HOME_CONTENT='<div class="hero"><img src="'$HERO_URL'" alt="Hero Image"/><h1>Welcome</h1></div>'
+HOME_ID=$(wp post create --post_type=page --post_title="Home" --post_status=publish --post_content="$HOME_CONTENT" --porcelain)
+wp post meta update $HOME_ID _thumbnail_id $HERO_IMG
+wp option update show_on_front page
+wp option update page_on_front $HOME_ID
+
+# 4. Create CPT entries with properly linked images
+MEMBER_ID=$(wp post create --post_type=team_member --post_title="John Smith" --post_status=publish --post_content="Bio content" --porcelain)
+wp post meta update $MEMBER_ID _thumbnail_id $TEAM_IMG
+wp post meta update $MEMBER_ID position "CEO"
+wp post meta update $MEMBER_ID profile_icon $ICON_IMG
+wp post term add $MEMBER_ID department "Leadership"
+```
+
+**Critical Image Linking Steps:**
+1. Import image → Get attachment ID
+2. Get WordPress URL: `wp post list --post_type=attachment --field=guid --post__in=[ID]`
+3. Replace all HTML markup image paths with WordPress URLs
+4. Set featured images using attachment IDs
+5. Set custom field images using attachment IDs (NOT file paths)
+6. Verify all images load correctly on frontend
+
+**IMPORTANT - No Fallback Content:**
+- Do NOT use hardcoded fallback content in templates (e.g., default text if field is empty)
+- All content must come from WordPress (post content, custom fields, taxonomies)
+- If a field is empty, either hide that section or show nothing
+- Never display placeholder/demo content on the live site
 HOME_ID=$(wp post create --post_type=page --post_title="Home" --post_status=publish --porcelain)
 wp option update show_on_front page
 wp option update page_on_front $HOME_ID
@@ -439,16 +481,24 @@ function theme_save_meta_boxes($post_id) {
     
     $post_type = get_post_type($post_id);
     
-    // Handle each CPT's fields with proper nonce verification
-    if ($post_type === 'feature' && isset($_POST['feature_nonce']) && 
-        wp_verify_nonce($_POST['feature_nonce'], 'feature_fields')) {
-        
-        // Image/icon field - use absint() for attachment IDs
-        if (isset($_POST['feature_icon'])) {
-            $icon_value = $_POST['feature_icon'];
-            empty($icon_value) 
-                ? delete_post_meta($post_id, 'feature_icon')
-                : update_post_meta($post_id, 'feature_icon', absint($icon_value));
+### 8.8 Content Creation Checklist
+
+- [ ] All images imported to Media Library via `wp media import`
+- [ ] All attachment IDs captured and stored
+- [ ] WordPress URLs retrieved for all imported images
+- [ ] HTML content updated with correct WordPress image URLs (not original markup paths)
+- [ ] All pages created via `wp post create --post_type=page` with corrected image URLs
+- [ ] Homepage set as front page via `wp option update`
+- [ ] All CPT entries created via `wp post create --post_type=[cpt]`
+- [ ] Featured images assigned via `wp post meta update [ID] _thumbnail_id [IMG_ID]`
+- [ ] All custom field image values set using attachment IDs (not file paths)
+- [ ] All custom field text values set via `wp post meta update`
+- [ ] All taxonomy terms created via `wp term create`
+- [ ] Terms assigned to posts via `wp post term add`
+- [ ] **Verified all images display correctly on frontend with proper WordPress paths**
+- [ ] **No broken image links or 404 errors for media files**
+- [ ] **No hardcoded fallback/placeholder content in templates - all content from WordPress**
+- [ ] **Templates properly handle empty fields (hide sections instead of showing placeholders)**e_icon', absint($icon_value));
         }
     }
 }

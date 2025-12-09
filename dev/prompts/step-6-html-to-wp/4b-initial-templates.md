@@ -160,8 +160,235 @@ After creating options, use WP-CLI to:
 - Create and assign menus to locations
 - Import any default content needed
 
+## Step 4: Populate Theme Options and Menus via WP-CLI
 
-### Step 4: Create index.php
+**CRITICAL:** All theme configuration must be done via WP-CLI commands. Do NOT use WordPress admin UI manually.
+
+### 4.1 Analyze Markup Content
+
+Before running commands, analyze `dev/html/[themeName]/homepage.html` and extract:
+
+**From Header:**
+- Logo image path and alt text
+- Navigation menu items (text, URLs, hierarchy)
+- Contact information (phone, email, address)
+- Social media links and icons
+- Any header utility elements (CTA buttons, search, language switcher)
+
+**From Footer:**
+- Footer menu structures (each column/section)
+- Social media links (if different from header)
+- Copyright text
+- Newsletter signup text (if present)
+- App download links (if present)
+
+**Important:** Each homepage section must be saved as a separate page, NOT as theme options. Theme options are only for global elements like logo, contact info, social links, and other settings that appear site-wide.
+
+### 4.2 Import Logo and Assets
+
+```bash
+# Navigate to WordPress installation
+cd websites/[themeName]
+
+# Import logo and capture attachment ID
+LOGO_ID=$(wp media import ../../dev/html/[themeName]/assets/images/logo.png --porcelain)
+
+# Set as custom logo
+wp option update theme_mods_[themeName] --format=json '{"custom_logo":'$LOGO_ID'}'
+
+# Or use this alternative approach
+wp theme mod set custom_logo $LOGO_ID
+
+# Import other global assets (footer logo, favicon, etc.)
+FOOTER_LOGO_ID=$(wp media import ../../dev/html/[themeName]/assets/images/footer-logo.png --porcelain)
+FAVICON_ID=$(wp media import ../../dev/html/[themeName]/assets/images/favicon.ico --porcelain)
+```
+
+### 4.3 Set Theme Options
+
+Set all extracted global settings from markup:
+
+```bash
+# Contact information
+wp option update theme_option_phone "+1-234-567-8900"
+wp option update theme_option_email "info@example.com"
+wp option update theme_option_address "123 Main St, City, State 12345"
+
+# Social media links (extract from markup)
+wp option update theme_option_facebook "https://facebook.com/yourpage"
+wp option update theme_option_twitter "https://twitter.com/yourhandle"
+wp option update theme_option_instagram "https://instagram.com/yourhandle"
+wp option update theme_option_linkedin "https://linkedin.com/company/yourcompany"
+wp option update theme_option_youtube "https://youtube.com/yourchannel"
+
+# Footer logo (if different from header)
+wp option update theme_option_footer_logo $FOOTER_LOGO_ID
+
+# Copyright text (extract from footer)
+wp option update theme_option_copyright "© 2024 Company Name. All rights reserved."
+
+# App download links (if present in markup)
+wp option update theme_option_app_store "https://apps.apple.com/app/yourapp"
+wp option update theme_option_google_play "https://play.google.com/store/apps/yourapp"
+
+# reCAPTCHA keys (if forms present - get from user)
+wp option update theme_option_recaptcha_site_key "your-site-key"
+wp option update theme_option_recaptcha_secret_key "your-secret-key"
+
+# Newsletter settings (if applicable)
+wp option update theme_option_newsletter_action "https://yourservice.com/subscribe"
+wp option update theme_option_newsletter_text "Subscribe to our newsletter"
+```
+
+**IMPORTANT - Theme Options vs Page Content:**
+- **Theme Options**: Only for global elements (logo, contact info, social links, footer copyright, app links)
+- **Page Content**: Homepage sections (hero, features, testimonials, etc.) must be saved as page content
+- **DO NOT**: Save section content in theme options - each section belongs to a page
+
+### 4.4 Create and Populate Menus
+
+Analyze markup to extract menu structure, then create menus via WP-CLI:
+
+```bash
+# Create main navigation menu
+MENU_ID=$(wp menu create "Main Menu" --porcelain)
+
+# Create menu items (adjust based on your markup structure)
+# Homepage
+HOME_ITEM=$(wp menu item add-custom $MENU_ID "Home" "/" --porcelain)
+
+# About page (create page first if doesn't exist)
+ABOUT_PAGE=$(wp post create --post_type=page --post_title="About Us" --post_status=publish --post_name="about-us" --porcelain)
+ABOUT_ITEM=$(wp menu item add-post $MENU_ID $ABOUT_PAGE --porcelain)
+
+# Services page with dropdown children
+SERVICES_PAGE=$(wp post create --post_type=page --post_title="Services" --post_status=publish --post_name="services" --porcelain)
+SERVICES_ITEM=$(wp menu item add-post $MENU_ID $SERVICES_PAGE --porcelain)
+
+# Add child menu items (dropdown)
+SERVICE1_PAGE=$(wp post create --post_type=page --post_title="Web Development" --post_status=publish --post_name="web-development" --post_parent=$SERVICES_PAGE --porcelain)
+wp menu item add-post $MENU_ID $SERVICE1_PAGE --parent-id=$SERVICES_ITEM
+
+SERVICE2_PAGE=$(wp post create --post_type=page --post_title="Mobile Apps" --post_status=publish --post_name="mobile-apps" --post_parent=$SERVICES_PAGE --porcelain)
+wp menu item add-post $MENU_ID $SERVICE2_PAGE --parent-id=$SERVICES_ITEM
+
+# Contact page
+CONTACT_PAGE=$(wp post create --post_type=page --post_title="Contact" --post_status=publish --post_name="contact" --porcelain)
+CONTACT_ITEM=$(wp menu item add-post $MENU_ID $CONTACT_PAGE --porcelain)
+
+# Assign menu to location (adjust location name based on your theme registration)
+wp menu location assign $MENU_ID primary
+
+# Create footer menu
+FOOTER_MENU_ID=$(wp menu create "Footer Menu" --porcelain)
+
+# Add footer menu items (extract from markup footer)
+wp menu item add-post $FOOTER_MENU_ID $ABOUT_PAGE
+wp menu item add-custom $FOOTER_MENU_ID "Privacy Policy" "/privacy-policy"
+wp menu item add-custom $FOOTER_MENU_ID "Terms of Service" "/terms"
+
+# Assign footer menu to location
+wp menu location assign $FOOTER_MENU_ID footer
+
+# If you have multiple footer menus (common pattern)
+FOOTER_MENU_2_ID=$(wp menu create "Footer Menu 2" --porcelain)
+wp menu item add-custom $FOOTER_MENU_2_ID "Careers" "/careers"
+wp menu item add-custom $FOOTER_MENU_2_ID "Blog" "/blog"
+wp menu location assign $FOOTER_MENU_2_ID footer-2
+```
+
+### 4.5 Menu Creation Strategy
+
+**Analyze Markup Structure:**
+1. Identify all navigation menus (header primary, header secondary, footer columns, mobile menu)
+2. Extract menu item text, URLs, and hierarchy (parent/child relationships)
+3. Determine which pages need to be created vs custom links
+4. Note any mega menu structures or special menu items
+
+**Menu Item Types:**
+- **Page Links**: Use `wp menu item add-post` for WordPress pages
+- **Custom Links**: Use `wp menu item add-custom` for external URLs or hash links
+- **Post Type Archives**: Use `wp menu item add-post` with post type archive
+- **Taxonomy Archives**: Use `wp menu item add-term` for category/tag links
+
+**Hierarchy Example:**
+```bash
+# Parent item
+PARENT=$(wp menu item add-post $MENU_ID $PAGE_ID --porcelain)
+
+# Child items
+wp menu item add-post $MENU_ID $CHILD_PAGE_1 --parent-id=$PARENT
+wp menu item add-post $MENU_ID $CHILD_PAGE_2 --parent-id=$PARENT
+
+# Grandchild items
+CHILD=$(wp menu item add-post $MENU_ID $CHILD_PAGE_1 --parent-id=$PARENT --porcelain)
+wp menu item add-post $MENU_ID $GRANDCHILD_PAGE --parent-id=$CHILD
+```
+
+### 4.6 Complete Initial Setup Workflow
+
+```bash
+# 1. Import logo and global assets
+LOGO_ID=$(wp media import ../../dev/html/[themeName]/assets/images/logo.png --porcelain)
+wp theme mod set custom_logo $LOGO_ID
+
+# 2. Set all theme options from markup
+wp option update theme_option_phone "+1-234-567-8900"
+wp option update theme_option_email "contact@example.com"
+wp option update theme_option_facebook "https://facebook.com/page"
+wp option update theme_option_copyright "© 2024 Company. All rights reserved."
+
+# 3. Create menu structure matching markup
+MENU_ID=$(wp menu create "Main Menu" --porcelain)
+
+# 4. Create pages needed for menu
+HOME_PAGE=$(wp post create --post_type=page --post_title="Home" --post_status=publish --post_name="home" --porcelain)
+ABOUT_PAGE=$(wp post create --post_type=page --post_title="About" --post_status=publish --post_name="about" --porcelain)
+
+# 5. Add pages to menu
+wp menu item add-post $MENU_ID $HOME_PAGE
+wp menu item add-post $MENU_ID $ABOUT_PAGE
+
+# 6. Assign menu to location
+wp menu location assign $MENU_ID primary
+
+# 7. Set homepage (if using static front page)
+wp option update show_on_front page
+wp option update page_on_front $HOME_PAGE
+
+# 8. Verify setup
+wp menu list
+wp menu location list
+wp theme mod list
+```
+
+### 4.7 Options and Menu Setup Checklist
+
+- [ ] Logo imported to Media Library via `wp media import`
+- [ ] Logo set as custom logo via `wp theme mod set custom_logo`
+- [ ] All contact information set in theme options
+- [ ] All social media links extracted from markup and set in options
+- [ ] Copyright text extracted and set in options
+- [ ] App download links set (if present in markup)
+- [ ] All menu locations identified from theme registration
+- [ ] Main navigation menu created with proper structure matching markup
+- [ ] All menu items added with correct hierarchy (parent/child relationships)
+- [ ] Footer menus created and populated
+- [ ] All menus assigned to correct locations
+- [ ] Menu structure matches markup navigation exactly
+- [ ] **Verified logo displays correctly in header**
+- [ ] **Verified menus display with correct links and structure**
+- [ ] **Verified all theme options appear correctly on frontend**
+- [ ] **No hardcoded content in templates - all pulled from options/menus**
+
+**IMPORTANT - Content Separation:**
+- Logo, contact info, social links → Theme Options
+- Menu structure → WP Menus
+- Homepage sections → Page Content (created in Step 4c)
+- Global widgets → Widget Areas (configured separately)
+
+
+### Step 5: Create index.php
 
 **Reference:** `knowledge-base/theme/index.php`
 
@@ -173,13 +400,20 @@ Create the main blog index template:
    ```php
    if ( have_posts() ) {
        while ( have_posts() ) {
+           the_post();
+           get_template_part( 'template-parts/content', get_post_format() );
+       }
+       the_posts_pagination();
+   }
+   ```
+3. Include `footer.php` via `get_footer()`
 
 
-### Step 5: Create inc/metaboxes.php
+### Step 6: Create inc/metaboxes.php
 
-**Reference:** `knowledge-base/theme/inc/metaboxes.php`
+Follow the pattern in reference theme for meta box registration.
 
-Register custom meta boxes for:
+### Step 7: Copy Helper Functions
 - Page-specific options
 - Post additional fields
 - Custom fields using wp-custom-fields plugin
@@ -251,19 +485,36 @@ Please test the following in your browser and WordPress admin:
 
 **3. Frontend - 404 Page**
    - Visit: http://yoursite.local/nonexistent-page
-   - ✓ 404 page displays with message and search?
-
-**4. Frontend - Blog**
-   - Visit: http://yoursite.local/blog (or posts page)
-   - ✓ Post loop displays correctly?
-   - ✓ Post titles, content, and images showing?
-
 **5. WordPress Admin**
    - Appearance → Menus
-     - ✓ Can create and assign menus to locations?
+     - ✓ All menu locations registered?
+     - ✓ Menus populated and assigned correctly?
    - Theme Options (custom menu or settings page)
      - ✓ Options page accessible?
-     - ✓ Can upload logo and save settings?
+     - ✓ Logo visible in options?
+     - ✓ All theme options saved correctly?
+   - Appearance → Widgets
+     - ✓ Widget areas available?
+   - Appearance → Customize
+     - ✓ Customizer loads without errors?
+     - ✓ Logo displays in Site Identity?
+
+**6. Theme Options Verification**
+   - Frontend → Header
+     - ✓ Logo displays correctly from options?
+     - ✓ Contact info displays (if in header)?
+     - ✓ Social icons display with correct links?
+   - Frontend → Footer
+     - ✓ Footer menus display correctly?
+     - ✓ Social links work (if in footer)?
+     - ✓ Copyright text displays from options?
+   - Frontend → Navigation
+     - ✓ All menu items display correctly?
+     - ✓ Dropdown menus work (if applicable)?
+     - ✓ Mobile menu functions properly?
+
+**Report any issues or confirm all tests pass.**
+```  - ✓ Can upload logo and save settings?
    - Appearance → Widgets
      - ✓ Widget areas available?
    - Appearance → Customize
