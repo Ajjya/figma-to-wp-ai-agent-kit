@@ -20,6 +20,9 @@ html/
 
 # Final website created by the agent (awesome-website as example to be committed)
 websites/
+!websites/awesome-website/
+!websites/awesome-website/wp-content/
+!websites/awesome-website/wp-content/themes/
 !websites/awesome-website/wp-content/themes/awesome-theme
 !websites/awesome-website/wp-content/themes/awesome-theme/**
 
