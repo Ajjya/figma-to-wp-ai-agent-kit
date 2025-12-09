@@ -13,13 +13,17 @@ dist/
 knowledge-base/theme/
 knowledge-base/plugins/
 
-websites/
-!websites/example-website/
-!websites/example-website/**
-
+# HTML extracted from Figma (awesome-website as example to be committed)
 html/
-!html/example-website/
-!html/example-website/**
+!html/awesome-website/
+!html/awesome-website/**
 
-# HTML extracted from Figma (not committed)
-dev/html/
+# Final website created by the agent (awesome-website as example to be committed)
+websites/
+!websites/awesome-website/wp-content/themes/awesome-theme
+!websites/awesome-website/wp-content/themes/awesome-theme/**
+
+# Tasks (awesome-website as example to be committed)
+tasks/
+!tasks/docs/
+!tasks/docs/**
