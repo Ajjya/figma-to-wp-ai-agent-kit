@@ -313,56 +313,158 @@ Use `wp-custom-fields` plugin groups defined to match page/CPT needs. Ensure:
 - Field group keys stable.
 - All front-end rendered strings come from post content, excerpt, meta, or taxonomy term names (no hard-coded marketing text).
 
-## 8. Save Data in WordPress Admin
-1. Create actual content in WordPress admin. Use WP-CLI for saving content. Reference the task configuration for details on how to store data.
+## 8. Save Content Using WP-CLI
 
-### CRITICAL: Icon and Image Custom Fields in Admin
+**CRITICAL:** All content must be created via WP-CLI commands. Do NOT use WordPress admin UI manually.
 
-**IMPORTANT:** For custom fields that allow image/icon uploads via WordPress Media Library:
+### 8.1 Import Images to Media Library
 
-1. **Enqueue WordPress Media Uploader** in `functions.php`:
+Before creating posts/pages, import all images from `dev/html/[themeName]/assets/` to WordPress Media Library:
+
+```bash
+# Navigate to WordPress installation
+cd websites/[themeName]
+
+# Import single image and capture attachment ID
+wp media import ../dev/html/[themeName]/assets/images/hero-image.jpg --porcelain
+
+# Import all images from assets folder
+wp media import ../dev/html/[themeName]/assets/images/* --porcelain
+```
+
+**Store returned attachment IDs** - you'll need them for featured images and custom fields.
+
+### 8.2 Create Pages with WP-CLI
+
+```bash
+# Create page and get ID
+wp post create --post_type=page --post_title="About Us" --post_status=publish --post_name="about-us" --porcelain
+
+# Create page with content from file
+wp post create --post_type=page --post_title="Homepage" --post_status=publish --post_name="home" --post_content="$(cat content.html)" --porcelain
+
+# Set page as front page
+wp option update show_on_front page
+wp option update page_on_front [PAGE_ID]
+
+# Create child page (set parent)
+wp post create --post_type=page --post_title="Team" --post_status=publish --post_parent=[PARENT_ID] --porcelain
+```
+
+### 8.3 Create Custom Post Type Entries
+
+```bash
+# Create CPT entry (example: team_member)
+wp post create --post_type=team_member --post_title="John Smith" --post_status=publish --post_content="Bio content here" --porcelain
+
+# Set featured image on post
+wp post meta update [POST_ID] _thumbnail_id [ATTACHMENT_ID]
+```
+
+### 8.4 Set Custom Field Values (Post Meta)
+
+```bash
+# Set text custom field
+wp post meta update [POST_ID] field_name "field value"
+
+# Set image/icon field (use attachment ID from media import)
+wp post meta update [POST_ID] feature_icon [ATTACHMENT_ID]
+
+# Set multiple fields for a post
+wp post meta update [POST_ID] position "CEO"
+wp post meta update [POST_ID] email "john@example.com"
+wp post meta update [POST_ID] linkedin_url "https://linkedin.com/in/johnsmith"
+```
+
+### 8.5 Create Taxonomy Terms
+
+```bash
+# Create taxonomy term
+wp term create department "Engineering" --porcelain
+
+# Create hierarchical term with parent
+wp term create department "Frontend" --parent=[PARENT_TERM_ID] --porcelain
+
+# Assign term to post
+wp post term add [POST_ID] department [TERM_ID]
+
+# Or assign by term name
+wp post term add [POST_ID] department "Engineering"
+```
+
+### 8.6 Complete Workflow Example
+
+For each content type in `current-task.json`:
+
+```bash
+# 1. Import images first
+HERO_IMG=$(wp media import dev/html/[theme]/assets/images/hero.jpg --porcelain)
+TEAM_IMG=$(wp media import dev/html/[theme]/assets/images/team-john.jpg --porcelain)
+
+# 2. Create taxonomy terms
+wp term create department "Leadership" --porcelain
+wp term create department "Engineering" --porcelain
+
+# 3. Create pages
+HOME_ID=$(wp post create --post_type=page --post_title="Home" --post_status=publish --porcelain)
+wp option update show_on_front page
+wp option update page_on_front $HOME_ID
+
+# 4. Create CPT entries with meta
+MEMBER_ID=$(wp post create --post_type=team_member --post_title="John Smith" --post_status=publish --porcelain)
+wp post meta update $MEMBER_ID _thumbnail_id $TEAM_IMG
+wp post meta update $MEMBER_ID position "CEO"
+wp post term add $MEMBER_ID department "Leadership"
+```
+
+### 8.7 Admin UI Requirements for Custom Fields
+
+Ensure custom fields are editable in WordPress admin by adding these to theme:
+
+**In `functions.php` - Enqueue media uploader for image fields:**
 ```php
 function theme_admin_scripts($hook) {
-    // REQUIRED: Enqueue media uploader for icon/image fields
     if ($hook === 'post.php' || $hook === 'post-new.php') {
         wp_enqueue_media();
     }
-    wp_enqueue_style('theme-admin', get_template_directory_uri() . '/assets/css/admin.css');
 }
 add_action('admin_enqueue_scripts', 'theme_admin_scripts');
 ```
 
-2. **Save Icon Fields by Post Type** in `inc/custom-fields.php`:
+**In `inc/custom-fields.php` - Save handler for meta boxes:**
 ```php
 function theme_save_meta_boxes($post_id) {
     if (defined('DOING_AUTOSAVE') && DOING_AUTOSAVE) return;
     if (!current_user_can('edit_post', $post_id)) return;
     
-    // Get post type to target correct fields
     $post_type = get_post_type($post_id);
     
-    // Example: Feature CPT with icon field
+    // Handle each CPT's fields with proper nonce verification
     if ($post_type === 'feature' && isset($_POST['feature_nonce']) && 
         wp_verify_nonce($_POST['feature_nonce'], 'feature_fields')) {
         
+        // Image/icon field - use absint() for attachment IDs
         if (isset($_POST['feature_icon'])) {
             $icon_value = $_POST['feature_icon'];
-            if (empty($icon_value)) {
-                delete_post_meta($post_id, 'feature_icon');
-            } else {
-                update_post_meta($post_id, 'feature_icon', absint($icon_value));
-            }
+            empty($icon_value) 
+                ? delete_post_meta($post_id, 'feature_icon')
+                : update_post_meta($post_id, 'feature_icon', absint($icon_value));
         }
     }
 }
 add_action('save_post', 'theme_save_meta_boxes');
 ```
 
-3. **Key Requirements for Icon Saving:**
-   - Check `$post_type` to ensure correct nonce is verified
-   - Handle empty values with `delete_post_meta()` to allow icon removal
-   - Use `absint()` for attachment IDs
-   - Each custom post type should have its own nonce verification block
+### 8.8 Content Creation Checklist
+
+- [ ] All images imported to Media Library via `wp media import`
+- [ ] All pages created via `wp post create --post_type=page`
+- [ ] Homepage set as front page via `wp option update`
+- [ ] All CPT entries created via `wp post create --post_type=[cpt]`
+- [ ] Featured images assigned via `wp post meta update [ID] _thumbnail_id [IMG_ID]`
+- [ ] All custom field values set via `wp post meta update`
+- [ ] All taxonomy terms created via `wp term create`
+- [ ] Terms assigned to posts via `wp post term add`
 
 ## 9. Validation Checklist
 - CPT & taxonomy appear in admin and are editable.

@@ -32,7 +32,6 @@ From `tasks/current-task.json`, extract:
 - `imageSizes` - Required image dimensions (if specified)
 
 
-
 ## Prereqs
  - Markup extracted (`status: "wp-initiated"`)
 
@@ -43,6 +42,7 @@ Create theme in next location:
 
 ## Reference 
  - Theme reference: `knowledge-base/theme`
+ - Mark up `dev/html/[themeName]/assets/`
 
 ## Read
 ### From Knowledge-base:

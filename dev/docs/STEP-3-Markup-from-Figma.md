@@ -1,7 +1,8 @@
 ## STEP 3: Copy Markup from Figma (via MCP)
 
 ### Objective
-Extract complete HTML/CSS markup from Figma designs using Figma MCP, ensuring all pages, components, and design tokens are properly captured.
+Extract complete pixel perfect HTML/CSS markup from Figma designs using Figma MCP, ensuring all pages, components, and design tokens are properly captured.
+Use Claude Opus 4.5 or Cloude Sonnet 4.5
 
 ### Prerequisites
 - Figma MCP is installed and authenticated
@@ -15,27 +16,8 @@ Read from `tasks/current-task.json`:
 - `figmaPages[]` - Array of pages with nodeId and page names
 - `siteStructure.pages[]` - Expected WordPress page structure
 
-### ⚠️ STRICT RULE: ASSET DOWNLOAD IS MANDATORY
 
-**ALL ASSETS MUST BE DOWNLOADED - NO EXCEPTIONS**
-**ALL SVG code - must be converted to files and save as assets/*.svg**
-
-During task you MUST:
-1. **Parse ALL asset URLs** from Figma MCP response (format: `http://localhost:3845/assets/[hash].[ext]`)
-2. **Download EVERY asset** to local folders:
-   - PNG/JPG images → `dev/html/[site-name]/assets/images/`
-   - SVG icons → `dev/html/[site-name]/assets/icons/`
-   - Logos → `dev/html/[site-name]/assets/logos/`
-3. **Verify downloads** - check file size > 0, file is valid
-4. **Update HTML** - replace localhost URLs with local relative paths
-5. Never create any documentation files
-6. ALL SVG code - must be converted to files and save as assets/*.svg
-
-**If an asset fails to download:**
-- If impossible to download, use font-awesome or other free icons in correct style
-- Do NOT skip - inform user of failed assets
-
-### Prompt for Figma MCP
+## Prompt for Figma MCP
 
 When calling Figma MCP, use this consolidated prompt:
 
@@ -43,7 +25,7 @@ When calling Figma MCP, use this consolidated prompt:
 Implement this design from Figma.
 @[page.url from figmaPages]
 
-Extract the complete design context for this WordPress site conversion project.
+Extract the complete pixel perfect design context for this WordPress site conversion project. Do not invest anything.
 
 Design System Requirements:
 1. Color Palette - Extract all color variables, primary/secondary/accent colors, backgrounds
@@ -61,7 +43,7 @@ For Each Page:
 - Export all images and assets
 
 Output Format:
-- Clean HTML5 semantic markup (no inline styles)
+- Clean pixel-perfect HTML5 semantic markup (no inline styles)
 - Modern CSS with BEM or similar naming
 - Commented code indicating sections
 - Separate files for each page
@@ -73,6 +55,24 @@ WordPress Specific:
 - Mark areas for WordPress loops
 - Form fields compatible with Contact Form 7 or WPForms
 ```
+
+
+### ⚠️ STRICT RULE: ASSET DOWNLOAD IS MANDATORY
+
+**ALL ASSETS MUST BE DOWNLOADED - NO EXCEPTIONS**
+**ALL SVG code - must be converted to files and save as assets/*.svg**
+
+During task you MUST:
+1. **Parse ALL asset URLs** from Figma MCP response (format: `http://localhost:3845/assets/[hash].[ext]`)
+2. **Download EVERY asset** to local folders:
+   - PNG/JPG images → `dev/html/[site-name]/assets/images/`
+   - SVG icons → `dev/html/[site-name]/assets/icons/`
+   - Logos → `dev/html/[site-name]/assets/logos/`
+3. **Verify downloads** - check file size > 0, file is valid
+4. **Update HTML** - replace localhost URLs with local relative paths
+5. Never create any documentation files
+6. ALL SVG code in html - must be converted to files and save as assets/*.svg
+
 
 ### AI Instructions - Step by Step Process
 
@@ -86,12 +86,12 @@ Use "docs/AI-INSTRUCTIONS.md" as base reference.
 #### 2. Extract Markup from Figma
 - Read `figmaPages[]` from `current-task.json`
 - Get site name from task (slugified title)
-- Create directory: `dev/html/[site-name]/` (this folder is in .gitignore)
+- Create directory: `dev/html/[themeName]` (this folder is in .gitignore)
 - For each page in `task.figmaPages[]`:
   - Use `page.url` for Figma MCP extraction
   - Send the consolidated prompt above to Figma MCP
   - Get design context and code
-  - Save to `dev/html/[site-name]/[page-name].html` and `[page-name].css`
+  - Save to `dev/html/[themeName]/[page-name].html` and `[page-name].css`
 - Use hamburger menu on mobile - be sure that navigation suits well, you must use hamburger menu as soon as navigation out of 1 line.
 - Images should change size proportionally when resize
 
@@ -108,29 +108,33 @@ Use "docs/AI-INSTRUCTIONS.md" as base reference.
 - Verify all pages from task are present in Figma
 - Check page names match between Figma and task definition
 
+
+### 5. Convert csv tags
+Convert all <svg>...</svg> to files in assets/icons
+
 **Show Analysis:**
 ```
 📊 Markup Extraction Analysis:
 
 ✅ Extracted Pages ([count]):
-- Homepage (Figma: "Homepage" → html: front-page.html)
+- Homepage (Figma: "Homepage" → html: homepage.html)
 - [List each page with mapping]
 
 ⚠️ Potential Issues:
 - [List any mismatches or missing pages]
 
-📁 Markup saved to: dev/html/[site-name]/
+📁 Markup saved to: dev/html/[themeName]
 Note: This directory is in .gitignore and not committed to git
 ```
 
-#### 5. Propose Validation
+#### 6. Propose Validation
 Ask user to review extracted markup:
 ```
 🔍 Markup Validation Required:
 
 I've extracted the markup from Figma. Please review:
 
-Location: dev/html/[site-name]/
+Location: dev/html/[themeName]
 Files: [list HTML files created]
 
 Note: These files are not tracked by git (.gitignore)
@@ -143,13 +147,13 @@ Options:
 What would you like to do?
 ```
 
-#### 6. Work with User on Adjustments
+#### 7. Work with User on Adjustments
 If user requests changes, ask specific questions:
 - Which page needs adjustment?
 - What specifically needs to change?
 - Should I re-extract from Figma or modify existing markup?
 
-#### 7. Update Task Status
+#### 8. Update Task Status
 - After user approves markup
 - Change status in `current-task.json` to: `"Markup done"`
 
@@ -182,9 +186,9 @@ If user requests changes, ask specific questions:
   * Icons (as SVG or icon classes)
 
 #### 5. File Structure
-- HTML file: `dev/html/[site-name]/[page-name].html`
-- CSS file: `dev/html/[site-name]/[page-name].css`
-- Assets: `dev/html/[site-name]/assets/[images|icons|logos]/`
+- HTML file: `dev/html/[themeName]/[page-name].html`
+- CSS file: `dev/html/[themeName]/[page-name].css`
+- Assets: `dev/html/assets/[images|icons|logos]/`
 
 ### Organize Extracted Files
 
@@ -199,36 +203,6 @@ dev/html/[site-name]/
     ├── images/
     ├── icons/
     └── logos/
-```
-
-Optional - Create design system documentation file if needed:
-
-```json
-{
-  "colors": {
-    "primary": "#......",
-    "secondary": "#......"
-  },
-  "typography": {
-    "fontFamilies": {
-      "primary": "...",
-      "headings": "..."
-    },
-    "fontSizes": {
-      "h1": "...",
-      "body": "..."
-    }
-  },
-  "spacing": {
-    "scale": [0, 4, 8, 16, 24, 32, 48, 64],
-    "containerMaxWidth": "1200px"
-  },
-  "breakpoints": {
-    "mobile": "767px",
-    "tablet": "1024px",
-    "desktop": "1025px"
-  }
-}
 ```
 
 ### Show User Summary
@@ -271,84 +245,6 @@ D) I'll review manually first
 
 Your choice?
 ```
-
-### Questions to Ask User
-
-**Before Extraction:**
-- "Is Figma MCP authenticated and working? Can you access the Figma file?"
-- "Should I extract all pages at once or one at a time?"
-- "What's your preferred CSS methodology (BEM, utility-first, modules)?"
-
-**During Extraction:**
-- "I found [X] pages in Figma but task defines [Y] pages. Should I extract all?"
-- "This component appears multiple times. Should I extract it as reusable?"
-- "There are [X] font families. Do you have licenses/access to them?"
-
-**After Extraction:**
-- "The markup is ready. Would you like me to create a preview?"
-- "Do you want me to optimize images before conversion?"
-- "Are there any pages that need adjustments?"
-
-### Common Issues and Solutions
-
-| Issue | Solution |
-|-------|----------|
-| Figma MCP authentication fails | Guide user through re-authentication, check API token |
-| Missing images in extraction | Re-export specific images, check export settings |
-| Colors don't match exactly | Verify color profile (RGB vs HEX), check opacity/transparency |
-| Fonts are different from Figma | Check font availability, provide web font alternatives |
-| Layout breaks at breakpoints | Review Figma frames, add missing media queries |
-
-### CSS Design Tokens Example
-
-Generate CSS custom properties file when needed:
-
-```css
-/* variables.css - Generated from Figma Design System */
-
-:root {
-  /* Colors - Primary Palette */
-  --color-primary: #......;
-  --color-primary-dark: #......;
-  --color-primary-light: #......;
-  
-  /* Colors - Secondary */
-  --color-secondary: #......;
-  
-  /* Colors - Neutral */
-  --color-background: #......;
-  --color-text: #......;
-  --color-border: #......;
-  
-  /* Typography */
-  --font-primary: 'Font Name', sans-serif;
-  --font-headings: 'Heading Font', serif;
-  
-  /* Font Sizes */
-  --font-size-h1: 3rem;
-  --font-size-h2: 2.5rem;
-  --font-size-h3: 2rem;
-  --font-size-body: 1rem;
-  
-  /* Spacing Scale */
-  --space-xs: 0.25rem;
-  --space-sm: 0.5rem;
-  --space-md: 1rem;
-  --space-lg: 1.5rem;
-  --space-xl: 2rem;
-  --space-2xl: 3rem;
-  
-  /* Breakpoints (for JS) */
-  --breakpoint-mobile: 767px;
-  --breakpoint-tablet: 1024px;
-  --breakpoint-desktop: 1025px;
-  
-  /* Layout */
-  --container-max-width: 1200px;
-  --grid-gap: 1.5rem;
-}
-```
-
 ### Success Criteria
 
 Before proceeding to Step 6, verify:
@@ -363,60 +259,3 @@ Before proceeding to Step 6, verify:
 - [ ] No missing assets or broken references
 - [ ] Task status updated to "Markup done"
 
-### Reference Documents
-- Task Figma data: `current-task.json` → `figmaPages[]` (use `url` field for each page)
-- Base AI instructions: `docs/AI-INSTRUCTIONS.md`
-
----
-
-**Remember:** This markup will be the foundation for WordPress templates. Ensure it's clean, semantic, and well-organized before proceeding to Step 6.
-
-
-REFACTOR
-**Images:**
-
-```php
-// Organize images by type:
-dev/html/[themeName]/assets/images/logo.* 
-  → theme/assets/images/logo.*
-
-dev/html/[themeName]/assets/images/icons/ 
-  → theme/assets/images/icons/
-
-dev/html/[themeName]/assets/images/[page]/ 
-  → theme/assets/images/pages/[page]/
-
-// Content images (uploaded via WordPress):
-// Move to /uploads/ directory or note for user to upload
-```
-
-
-### Step 2: Extract Assets from HTML
-
-```bash
-# Find all asset references in HTML
-grep -r "localhost:3845/assets" dev/html/[title]/ | grep -o '[a-f0-9]\{40\}\.[a-z]*' | sort -u > asset-list.txt
-
-# This creates list like:
-# d915c1354e6f7b603747f520a7e54c82310305bc.svg
-# 139d5e67c9bdb89e6a051b5dd6bc9023c2308045.svg
-# etc.
-```
-
-### Step 3: Download Assets from Figma MCP Server
-
-**If MCP Server is Still Running:**
-
-```bash
-# Download each asset
-while read hash; do
-  curl "http://localhost:3845/assets/$hash" -o "temp-assets/$hash"
-done < asset-list.txt
-```
-
-**If MCP Server is Not Running:**
-
-Ask user to:
-1. Restart Figma MCP server
-2. Re-export assets from Figma
-3. Or provide alternative source for assets

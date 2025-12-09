@@ -1,27 +1,33 @@
 # Step 4e: Final Integration & QA
 
-Use general AI instructions `docs/AI-INSTRUCTIONS.md`
-Use step AI instructions `docs/STEP-6-Html-to-WP.md`
-
-Take theme name from task: `[task.title slugified]`
-Theme Location:
-   - websites/[site-name]/wp-content/themes/[theme-name]/
-   
 ## Goal
 Complete remaining CSS/JS integration, validate responsiveness, optimize performance/SEO/accessibility, and perform final QA before deployment.
+
+## AI Instructions
+- Follow general AI instructions from `docs/AI-INSTRUCTIONS.md`
+- Follow step-specific instructions from `docs/STEP-6-Html-to-WP.md`
+- Do not invent anything - ask the user if you have any doubts before proceeding
+- Do not create additional documentation (.md) files
 
 ## Prerequisites
 - Steps 4a–4d complete
 - Forms functional
 - Templates rendering correctly
 
-## References
-- Markup assets: `/dev/html/[project]/assets/`
-- Task definition: `/tasks/current-task.json`
+## Extract Task Data
+From `tasks/current-task.json`, extract:
+- `themeName` - The name of the theme you're building
+- `status` - Current workflow status (must be "wp-initiated")
+- `title` - Project title
+- `menus` - Menu locations needed
+- `widgets` - Widget areas needed
+- `customPosts` - Custom post types to register
+- `categories` - Taxonomy structure
+- `imageSizes` - Required image dimensions (if specified)
 
----
-
-## 0. Activate the theme in WordPress admin
+## Reference 
+ - Theme reference: `knowledge-base/theme`
+ - Mark up `dev/html/[themeName]/assets/`
 
 ## 1. CSS & JavaScript Integration
 
@@ -158,8 +164,6 @@ Add to `assets/js/main.js` or create component-specific files. Ensure proper eve
 - Nonces on forms; CSRF protection
 - Strong passwords; limit login attempts (plugin)
 - Security plugin installed (Wordfence/Sucuri)
-
----
 
 ## 4. Comprehensive QA Testing
 

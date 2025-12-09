@@ -2,7 +2,7 @@
   "id": "1",
   "title": "Awesome website",
   "themeName": "awesome-theme",
-  "status": "html-to-wp-complete",
+  "status": "wp-initiated",
   "serverType": "valet",
   "figmaUrl": "https://www.figma.com/design/lxBauAT7T509cWqjpa6s8s/Awesome",
   "metadata": {

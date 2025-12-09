@@ -19,9 +19,13 @@ const config = JSON.parse(fs.readFileSync(configPath, 'utf-8'));
 function cloneRepository(repoConfig, description) {
   const destPath = path.join(ROOT_DIR, repoConfig.destination);
   
+  // Check if destination exists and has content (look for .git directory or files)
   if (fs.existsSync(destPath)) {
-    console.log(`✅ ${repoConfig.name} already exists`);
-    return true;
+    const files = fs.readdirSync(destPath);
+    if (files.length > 0) {
+      console.log(`✅ ${repoConfig.name} already exists`);
+      return true;
+    }
   }
   
   console.log(`📦 Cloning ${description}: ${repoConfig.name}...`);

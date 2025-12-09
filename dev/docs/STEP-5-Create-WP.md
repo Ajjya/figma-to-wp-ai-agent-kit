@@ -75,7 +75,7 @@ Use "docs/AI-INSTRUCTIONS.md" as base
    - For Valet: Set up database, install WordPress, configure
    - For Docker: Create docker-compose.yml with configuration
    - For Manual: Create theme folder structure only
-   - Copy plugin from knowledge-base/themes/awesome_group/wp-content/plugins/wp-custom-fileds/
+   - Copy plugin from knowledge-base/plugins/wp-custom-fileds
 
 4. **Show Completion Summary**
    - After site creation completes, show summary based on server type:
