@@ -342,8 +342,8 @@ The AI assistant is designed to guide you through the entire process. If you enc
 
 ## DEMO video
 
-Full Demo: https://drive.google.com/file/d/1k01K_2XKKR9kOxy-oYLBI35IcLUVCtPd/view?usp=drive_link
-Short Demo: https://drive.google.com/file/d/1_H7OGzvMaKeMQYW0O0opK0QZUrHEG6kM/view?usp=drive_link
+- Full Demo: [full demo](https://drive.google.com/file/d/1k01K_2XKKR9kOxy-oYLBI35IcLUVCtPd/view?usp=drive_link)
+- Short Demo: [short demo](https://drive.google.com/file/d/1_H7OGzvMaKeMQYW0O0opK0QZUrHEG6kM/view?usp=drive_link)
 
 
 ---
