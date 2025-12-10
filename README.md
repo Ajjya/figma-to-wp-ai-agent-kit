@@ -340,6 +340,12 @@ The AI assistant is designed to guide you through the entire process. If you enc
 3. Ask the AI assistant for help
 4. Verify prerequisites are installed
 
+## DEMO video
+
+Full Demo: https://drive.google.com/file/d/1k01K_2XKKR9kOxy-oYLBI35IcLUVCtPd/view?usp=drive_link
+Short Demo: https://drive.google.com/file/d/1_H7OGzvMaKeMQYW0O0opK0QZUrHEG6kM/view?usp=drive_link
+
+
 ---
 
 **Ready to start?** Run `yarn setup` and follow the steps above! 🚀
