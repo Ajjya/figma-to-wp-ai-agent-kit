@@ -16,6 +16,25 @@ $why_awesome_items = new WP_Query(array(
     'orderby'        => 'menu_order',
     'order'          => 'ASC',
 ));
+
+// Default items if no posts exist
+$default_items = array(
+    array(
+        'title'       => 'Security',
+        'description' => 'Our non-custodial wallet solutions guarantee the highest industry standards',
+        'icon'        => 'icon-check.svg',
+    ),
+    array(
+        'title'       => 'AML Module',
+        'description' => 'Check transactions for "dirty money". Stay protected from scammers.',
+        'icon'        => 'icon-settings.svg',
+    ),
+    array(
+        'title'       => 'Labels',
+        'description' => 'Set labels for transactions. Send crypto from marked liquidity',
+        'icon'        => 'icon-label.svg',
+    ),
+);
 ?>
 
 <section id="why-awesome" class="why-awesome">
